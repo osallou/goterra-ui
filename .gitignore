@@ -1,0 +1,6 @@
+goterra-ui.yml
+goterra-ui
+_vendor*
+vendor
+static/node_modules
+static/build
