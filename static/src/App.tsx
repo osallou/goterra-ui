@@ -5,20 +5,27 @@ import logo from './logo.svg';
 import './App.css';
 
 import {Auth, Login, Logout, User} from './Auth/Auth'
-import {Home} from './Home'
+import {GoogleAuth} from './Auth/GoogleAuth'
+import {NameSpaces} from './Namespaces'
+import {NameSpace} from './Namespace'
+import {EndpointSpace} from './Endpoint'
+import {RecipeSpace} from './Recipe'
+import {AppsSpace} from './Apps'
+import {Runs} from './Runs'
+
 
 import axios from 'axios'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { render } from 'react-dom';
-library.add(faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
+library.add(faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
 
 
 
 axios.interceptors.request.use(
   config => {
-    config.headers['Authorization'] = Auth.authToken !== "" ? 'Bearer ' + Auth.authToken : '';
+      config.headers['Authorization'] = Auth.authToken !== "" ? 'Bearer ' + Auth.authToken : '';
     return config;
   },
   error => Promise.reject(error)
@@ -29,7 +36,7 @@ axios.interceptors.response.use(function (config) {
 }, function (error) {
   if (error.request !== undefined && error.request.status === 401) {
     Auth.logout()
-    return window.location.href = '/auth/login'
+    return window.location.href = '/login'
   }
   if(error.response === undefined) {error.response={data:{msg: 'error'}}}
   return Promise.reject(error)
@@ -39,6 +46,7 @@ type AppState = {
   isLogged:boolean,
   user:User | null,
   msg: string,
+  fireRedirect: boolean
 }
 type AppProps = {}
 
@@ -51,6 +59,7 @@ class App extends React.Component<AppProps, AppState> {
       isLogged: false,
       user: null,
       msg: '',
+      fireRedirect: false
     }
 
     this.onLogin = this.onLogin.bind(this);
@@ -60,6 +69,25 @@ class App extends React.Component<AppProps, AppState> {
 
     Auth.init();
  
+  }
+
+  componentDidMount() {
+    if(localStorage.getItem('gotauth-token') !== "") {
+      Auth.authToken = localStorage.getItem('gotauth-token') ? localStorage.getItem('gotauth-token'): ""
+      let ctx = this
+      let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+      axios.get(root + "/auth/api")
+      .then(function (response) {
+          // handle success
+          ctx.setState({fireRedirect: true})
+          let user = Auth.login(response.data.user, response.data.token)
+          ctx.onLogin(user)
+      })
+      .catch(function (error: any) {
+          // handle error
+          console.log(error);
+      })
+    }
   }
 
   resetMessage(){
@@ -89,7 +117,10 @@ class App extends React.Component<AppProps, AppState> {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav mr-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/home">TODO</Link>
+              <Link className="nav-link" to="/ns">Namespaces</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/run">Runs</Link>
             </li>
           </ul>
           <ul className="navbar-nav my-2 my-lg-0">
@@ -107,14 +138,26 @@ class App extends React.Component<AppProps, AppState> {
       </div>
 
       <Switch>
-        <Route exact path='/' component={Home}/>
+        <Route exact path='/ns' component={NameSpaces}/>
+        <Route exact path='/ns/:nsid' component={NameSpace}/>
+        <Route exact path='/ns/:nsid/endpoint/:endpointid' component={EndpointSpace}/>
+        <Route exact path='/ns/:nsid/recipe' component={RecipeSpace}/>
+        <Route exact path='/ns/:nsid/recipe/:recipeid' component={RecipeSpace}/>
+        <Route exact path='/ns/:nsid/app' component={AppsSpace}/>
+        <Route exact path='/ns/:nsid/app/:appid' component={AppsSpace}/>
+        <Route exact path='/run' component={Runs}/>
+
+
         <Route exact path='/login'
           render={(props) => <Login {...props} onLogin={this.onLogin} onMessage={this.onMessage}/>}
         />
         <Route exact path='/logout'
         render={(props) => <Logout {...props} onLogout={this.onLogout} />}
         />
+        <Route exact path='/app/auth/oidc/google/callback'
+          render={(props) => <GoogleAuth {...props} onLogin={this.onLogin}/>}/>
       </Switch>
+      {this.state.fireRedirect && (<Redirect to={'/'}/>)}
     </div>
   );}
 }

@@ -1,0 +1,76 @@
+import React from "react";
+import { Redirect, RouteComponentProps } from 'react-router-dom'
+
+import queryString from 'query-string'
+import axios from 'axios'
+
+
+import {Auth, Login, Logout, User} from './Auth'
+
+type GoogleAuthState = {
+    logged: boolean
+    msg: string
+}
+
+interface GoogleAuthProps extends RouteComponentProps<{}> {
+    onLogin: Function
+}
+
+export class GoogleAuth extends React.Component<GoogleAuthProps, GoogleAuthState> {
+    constructor(props:GoogleAuthProps) {
+        super(props);
+        this.state = {
+            logged: false,
+            msg: ""
+        }
+
+    }
+
+    componentDidMount() {
+        let values = queryString.parse(this.props.location.search)
+        let state = values.state
+        let code = values.code
+        let session_state = values.session_state
+        let prompt = values.prompt
+        let ctx = this
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+
+        axios.get(root + "/auth/oidc/google/callback", {
+            params: {
+                state: state,
+                code: code,
+                session_state: session_state,
+                prompt: prompt
+            }
+        })
+        .then(function (response) {
+            // handle success
+            ctx.setState({msg: "cool"})
+            let user = {
+                uid: response.data.uid,
+                apikey: response.data.apikey,
+                email: "",
+                admin: false
+            }
+            Auth.login(user, response.data.token)
+            ctx.props.onLogin(user)
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+            ctx.setState({msg: "An error occured: " + error})
+        })
+    }
+
+
+    render() {
+        return (
+            <div>
+            { this.state.logged && <Redirect to="/ns"/> }
+            <div className="row">
+                <div className="label label-info">Validating authentication...</div>
+            </div>
+            </div>
+        )
+    }
+}

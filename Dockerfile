@@ -15,10 +15,9 @@ RUN dep ensure
 RUN go build -ldflags "-X  main.Version=`git rev-parse --short HEAD`" goterra-ui.go
 RUN cp goterra-ui.yml.example goterra.yml
 
-
-FROM node:alpine
+FROM node:8-stretch
 COPY . .
-WORKDIR static
+WORKDIR ./static
 RUN npm install
 RUN npm run build
 
@@ -26,9 +25,11 @@ RUN npm run build
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-RUN mkdir -p static/build
-COPY --from=1 static/build static/build/
 COPY --from=0 /go/src/github.com/osallou/goterra-ui/goterra-ui .
 COPY --from=0 /go/src/github.com/osallou/goterra-ui/goterra.yml .
 RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN mkdir -p ./static/build ./static/public
+COPY --from=1 /static/public ./static/public
+COPY --from=1 /static/build ./static/build
+
 CMD ["./goterra-ui"]
