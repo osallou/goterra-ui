@@ -129,7 +129,7 @@ interface RunsState {
 }
 
 function timeConverter(UNIX_timestamp:number){
-    if (UNIX_timestamp === undefined) {
+    if (UNIX_timestamp === undefined || UNIX_timestamp === 0) {
         return ""
     }
     try {
@@ -205,61 +205,68 @@ interface RunCardState {
                 <div className="card-body">
                 <form>
                         <div className="form-group row">
-                            <label htmlFor="name">Status</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.status}/>
-                        </div>
-                        
-                        <div className="form-group row">
-                            <label htmlFor="name">Start</label>
-                            <input className="form-control" name="name" readOnly value={timeConverter(this.props.run.start)}/>
+                            <label htmlFor="name">Name</label>
+                            <input className="form-control" name="name" readOnly value={this.props.run.name}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">End</label>
-                            <input className="form-control" name="name" readOnly value={timeConverter(this.props.run.end)}/>
+                            <label htmlFor="desc">Description</label>
+                            <input className="form-control" name="desc" readOnly value={this.props.run.description}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">Application</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.appID}/>
+                            <label htmlFor="status">Status</label>
+                            <input className="form-control" name="status" readOnly value={this.props.run.status}/>
+                        </div>                       
+                        <div className="form-group row">
+                            <label htmlFor="start">Start</label>
+                            <input className="form-control" name="start" readOnly value={timeConverter(this.props.run.start)}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">Namespace</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.namespace}/>
+                            <label htmlFor="end">End</label>
+                            <input className="form-control" name="end" readOnly value={timeConverter(this.props.run.end)}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">Endpoint</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.endpoint}/>
+                            <label htmlFor="app">Application</label>
+                            <input className="form-control" name="app" readOnly value={this.props.run.appID}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">Deployment</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.deployment}/>
+                            <label htmlFor="ns">Namespace</label>
+                            <input className="form-control" name="ns" readOnly value={this.props.run.namespace}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="endpoint">Endpoint</label>
+                            <input className="form-control" name="endpoint" readOnly value={this.props.run.endpoint}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="depl">Deployment</label>
+                            <input className="form-control" name="depl" readOnly value={this.props.run.deployment}/>
                         </div>
                         <h5>Outputs</h5>
                         {Object.keys(this.props.run.outputs).map((key, index) => (
                         <div className="form-group row" key={index}>
-                            <label htmlFor="name">{key}</label>
-                            <input className="form-control" name="name" readOnly value={this.props.run.outputs[key].value}/>
+                            <label htmlFor={key}>{key}</label>
+                            <input className="form-control" name={key} readOnly value={this.props.run.outputs[key].value}/>
                         </div>                            
                         ))}
                         <h5>Events</h5>
                         {this.props.run.events && this.props.run.events.map((event:any, index:number) => (
                             <div className="form-group row" key={this.props.run.id + "-" + event.ts}>
-                               <label htmlFor="name">{timeConverter(event.ts)}</label>
-                               <input className="form-control" name="name" readOnly value={event.action + "-> " + event.success}/>
+                               <label htmlFor={event.ts}>{timeConverter(event.ts)}</label>
+                               <input className="form-control" name={event.ts} readOnly value={event.action + "-> " + event.success}/>
                            </div>                   
                         ))}
                         <h5>Recipes status</h5>
                         {this.state.status && Object.keys(this.state.status).map((key, index) => (
                          <div className="form-group row" key={index}>
-                            <label htmlFor="name">{key}</label>
-                            <input className="form-control" name="name" readOnly value={this.state.status[key]}/>
+                            <label htmlFor={key}>{key}</label>
+                            <input className="form-control" name={key} readOnly value={this.state.status[key]}/>
                         </div>                           
                         ))}
                         <h5>Store information</h5>
                         <button type="button" className="btn btn-secondary" onClick={this.getStoreInfo}>Show</button>
                         {this.state.store && Object.keys(this.state.store).map((key, index) => (
                          <div className="form-group row" key={index}>
-                            <label htmlFor="name">{key}</label>
-                            <input className="form-control" name="name" readOnly value={this.state.store[key]}/>
+                            <label htmlFor={key}>{key}</label>
+                            <input className="form-control" name={key} readOnly value={this.state.store[key]}/>
                         </div>                           
                         ))}
                 </form>                  
