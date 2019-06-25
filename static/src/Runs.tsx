@@ -26,7 +26,7 @@ class RunService {
             })
             .then(function (response) {
                 // handle success
-                resolve(response.data.runs.reverse())
+                resolve(response.data.runs)
             })
             .catch(function (error) {
                 // handle error
