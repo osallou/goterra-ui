@@ -99,7 +99,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   onLogin(user:User) {
-    this.setState({isLogged: true, user: Auth.user})
+    this.setState({isLogged: true, user: Auth.user, fireRedirect: true})
   }
 
   onLogout() {

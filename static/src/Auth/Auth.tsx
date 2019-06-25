@@ -66,7 +66,6 @@ type LoginProps = {
 }
 type LoginState = {
     onLogin: Function
-    fireRedirect: boolean
     errors: string
     apiKey: string
     msg: string
@@ -78,7 +77,6 @@ export class Login extends React.Component<LoginProps,LoginState> {
         super(props);
         this.state = {
             errors: "",
-            fireRedirect: false,
             onLogin: props.onLogin || null,
             apiKey: "",
             msg: ""
@@ -107,7 +105,7 @@ export class Login extends React.Component<LoginProps,LoginState> {
         })
         .then(function (response) {
             // handle success
-            ctx.setState({msg: "cool", fireRedirect: true})
+            ctx.setState({msg: "cool"})
             let user = Auth.login(response.data.user, response.data.token)
             ctx.props.onLogin(user)
         })
@@ -127,7 +125,6 @@ export class Login extends React.Component<LoginProps,LoginState> {
         return (
             <div>
                 {this.state.errors && <div className="alert alert-warning" role="alert">{this.state.errors}</div>}
-                {this.state.fireRedirect && (<Redirect to={'/ns'}/>)}
                 <p>Login with google</p>
                 <input name="apikey" value={this.state.apiKey} onChange={this.onApiKeyChange} placeholder="api key"></input>
                 <button onClick={this.onLogin} className="btn btn-primary">Log in</button>
