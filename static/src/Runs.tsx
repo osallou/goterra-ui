@@ -56,6 +56,26 @@ class RunService {
         })
     }
 
+    static stop(ns: string, run:string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, _) => {
+            axios.delete(root + "/deploy/ns/" + ns + "/run/" + run, {
+                headers: {
+                    "Authorization": "Bearer " + Auth.authToken
+                }
+            })
+            .then(function (response) {
+                // handle success
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                resolve([])
+            })
+        })
+    }
+
     static getAgentInfo(ns: string, run:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, _) => {
@@ -156,6 +176,7 @@ function timeConverter(UNIX_timestamp:number){
 interface RunCardState {
     store: any | null
     status: any | null
+    msg: string
 }
 
   class RunCard extends React.Component<RunCardProps, RunCardState> {
@@ -164,9 +185,22 @@ interface RunCardState {
         super(props);
         this.state = {
             store: null,
-            status: null
+            status: null,
+            msg: ""
         }
         this.getStoreInfo = this.getStoreInfo.bind(this)
+        this.stop = this.stop.bind(this)
+    }
+
+    stop() {
+        let ctx = this
+        RunService.stop(this.props.run.namespace, this.props.run.id).then(res => {
+            ctx.setState({msg: "Stop request sent"})
+            // TODO should set run in context and reload it with timer for refresh
+            // or auto refresh on run list
+        }).catch(err => {
+            ctx.setState({msg: err})
+        })
     }
 
     getStoreInfo() {
@@ -215,7 +249,8 @@ interface RunCardState {
                         <div className="form-group row">
                             <label htmlFor="status">Status</label>
                             <input className="form-control" name="status" readOnly value={this.props.run.status}/>
-                        </div>                       
+                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger">stop (Not yet implemented)</button>}
+                        </div>
                         <div className="form-group row">
                             <label htmlFor="start">Start</label>
                             <input className="form-control" name="start" readOnly value={timeConverter(this.props.run.start)}/>
@@ -247,6 +282,12 @@ interface RunCardState {
                             <input className="form-control" name={key} readOnly value={this.props.run.outputs[key].value}/>
                         </div>                            
                         ))}
+                        { this.props.run.error &&
+                        <div className="form-group row">
+                               <label htmlFor="error">Error</label>
+                               <textarea rows={20} className="form-control" name="error" readOnly value={this.props.run.error}/>
+                        </div>
+                        }
                         <h5>Events</h5>
                         {this.props.run.events && this.props.run.events.map((event:any, index:number) => (
                             <div className="form-group row" key={this.props.run.id + "-" + event.ts}>

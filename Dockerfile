@@ -19,6 +19,7 @@ FROM node:8-stretch
 COPY . .
 WORKDIR ./static
 RUN npm install
+ENv REACT_APP_GOT_BASENAME=/app
 RUN npm run build
 
 
