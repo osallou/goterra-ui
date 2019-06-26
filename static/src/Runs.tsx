@@ -5,8 +5,7 @@ import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {Auth} from './Auth/Auth'
-
-
+import {NameSpaceService} from './Namespace'
 interface Run {
 
 }
@@ -108,7 +107,7 @@ class RunService {
             })
             .then(function (response) {
                 // handle success
-                resolve(response.data)
+                resolve(response.data.deployment)
             })
             .catch(function (error) {
                 // handle error
@@ -177,6 +176,7 @@ interface RunCardState {
     store: any | null
     status: any | null
     msg: string
+    endpoints: any
 }
 
   class RunCard extends React.Component<RunCardProps, RunCardState> {
@@ -186,18 +186,18 @@ interface RunCardState {
         this.state = {
             store: null,
             status: null,
-            msg: ""
+            msg: "",
+            endpoints: {}
         }
         this.getStoreInfo = this.getStoreInfo.bind(this)
         this.stop = this.stop.bind(this)
+        this.getEndpointName = this.getEndpointName.bind(this)
     }
 
     stop() {
         let ctx = this
         RunService.stop(this.props.run.namespace, this.props.run.id).then(res => {
             ctx.setState({msg: "Stop request sent"})
-            // TODO should set run in context and reload it with timer for refresh
-            // or auto refresh on run list
         }).catch(err => {
             ctx.setState({msg: err})
         })
@@ -216,6 +216,20 @@ interface RunCardState {
         //}
     }
 
+    componentDidMount() {
+        let ctx = this
+        NameSpaceService.endpoints(this.props.run.namespace).then(endpoints => {
+            let ns_endpoints:any = {}
+            for(let i=0;i<endpoints.length;i++) {
+                let endpoint = endpoints[i]
+                ns_endpoints[endpoint.id] = endpoint
+            }
+            ctx.setState({endpoints: ns_endpoints})
+        }).catch(error => {
+            ctx.setState({msg: error})
+        })
+    }
+
     componentDidUpdate(prevProps: RunCardProps, _: RunCardState) {
         let ctx = this
 
@@ -227,9 +241,13 @@ interface RunCardState {
         if(this.props.run.deployment !== undefined && this.props.run.deployment !== ""){
             RunService.getStoreInfoStatus(this.props.run.deployment).then(depl => {
                 ctx.setState({status: depl})
-                console.log("depl statuses", depl)
+                //console.log("depl statuses", depl)
             })
         }
+    }
+
+    getEndpointName(id: string):string {
+        return this.state.endpoints[id] ? (this.state.endpoints[this.props.run.endpoint] + "[" + id + "]") : id
     }
 
     render() {
@@ -238,6 +256,7 @@ interface RunCardState {
                <div className="card-header">{this.props.run.id}</div>
                 <div className="card-body">
                 <form>
+                        { this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
                             <input className="form-control" name="name" readOnly value={this.props.run.name}/>
@@ -249,7 +268,7 @@ interface RunCardState {
                         <div className="form-group row">
                             <label htmlFor="status">Status</label>
                             <input className="form-control" name="status" readOnly value={this.props.run.status}/>
-                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger">stop (Not yet implemented)</button>}
+                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger" onClick={this.stop}>stop</button>}
                         </div>
                         <div className="form-group row">
                             <label htmlFor="start">Start</label>
@@ -269,7 +288,7 @@ interface RunCardState {
                         </div>
                         <div className="form-group row">
                             <label htmlFor="endpoint">Endpoint</label>
-                            <input className="form-control" name="endpoint" readOnly value={this.props.run.endpoint}/>
+                            <input className="form-control" name="endpoint" readOnly value={this.getEndpointName(this.props.run.endpoint)}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="depl">Deployment</label>
@@ -307,7 +326,8 @@ interface RunCardState {
                         {this.state.store && Object.keys(this.state.store).map((key, index) => (
                          <div className="form-group row" key={index}>
                             <label htmlFor={key}>{key}</label>
-                            <input className="form-control" name={key} readOnly value={this.state.store[key]}/>
+                        { key.indexOf("_") !== 0 && <input className="form-control" name={key} readOnly value={this.state.store[key]}/> }
+                        { key.indexOf("_") === 0 && <textarea rows={20} className="form-control" name={key} readOnly value={this.state.store[key]}/> }
                         </div>                           
                         ))}
                 </form>                  
@@ -329,6 +349,7 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
             msg: ""
         }
         this.selectRun = this.selectRun.bind(this)
+        this.refresh = this.refresh.bind(this)
     }
 
     componentDidMount() {
@@ -340,6 +361,13 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         }
     }
 
+    refresh() {
+        let ctx = this
+        RunService.list().then(runs => {
+            ctx.setState({runs: runs, run: null})
+        })  
+    }
+
     selectRun(run: any) {
         let ctx =this
         return function() {
@@ -349,18 +377,6 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                 console.log("outputs cannot be parsed")
             }
             ctx.setState({run: run})
-            /*
-            RunService.getAgentInfo(run.namespace, run.id).then(runInfo => {
-                try {
-                runInfo.outputs = JSON.parse(runInfo.outputs)
-                } catch(err) {
-                    console.log("outputs cannot be parsed")
-                }
-                ctx.setState({runInfo: runInfo})
-            }).catch(error => {
-                ctx.setState({msg: error})
-            })
-            */
         }
     }
 
@@ -371,6 +387,7 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                 <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item active" aria-current="page"><Link to={`/run`}>run</Link></li>
+                    <li className="breadcrumb-item"><button type="button" className="btn btn-secondary" onClick={this.refresh}>Refresh</button></li>
                 </ol>
                 </nav>
                 </div>

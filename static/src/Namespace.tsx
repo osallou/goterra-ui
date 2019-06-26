@@ -21,7 +21,7 @@ interface NamespaceState {
     apps: any[]
 }
 
-class NameSpaceService {
+export class NameSpaceService {
     static get(nsid:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
