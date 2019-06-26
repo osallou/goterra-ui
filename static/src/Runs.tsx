@@ -208,12 +208,10 @@ interface RunCardState {
         if (this.props.run.deployment === undefined || this.props.run.deployment === ""){
             return
         }
-        //return function() {
         RunService.getStoreInfo(ctx.props.run.deployment).then(depl => {
             ctx.setState({store: depl})
             console.log("depl store", depl)
         }).catch(err => {})
-        //}
     }
 
     componentDidMount() {
@@ -228,6 +226,12 @@ interface RunCardState {
         }).catch(error => {
             ctx.setState({msg: error})
         })
+
+        if(this.props.run.deployment !== undefined && this.props.run.deployment !== ""){
+            RunService.getStoreInfoStatus(this.props.run.deployment).then(depl => {
+                ctx.setState({status: depl})
+            })
+        }
     }
 
     componentDidUpdate(prevProps: RunCardProps, _: RunCardState) {
@@ -247,7 +251,7 @@ interface RunCardState {
     }
 
     getEndpointName(id: string):string {
-        return this.state.endpoints[id] ? (this.state.endpoints[this.props.run.endpoint] + "[" + id + "]") : id
+        return this.state.endpoints[id] ? (this.state.endpoints[id].name + "[" + id + "]") : id
     }
 
     render() {
@@ -365,7 +369,9 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         let ctx = this
         RunService.list().then(runs => {
             ctx.setState({runs: runs, run: null})
-        })  
+        }).catch(err => {
+            console.log("failed to refresh list")
+        })
     }
 
     selectRun(run: any) {
