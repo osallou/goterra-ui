@@ -20,6 +20,39 @@ interface EndpointState {
 }
 
 export class EndpointService {
+
+    static hasSecret(nsid:string, endpoint:string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/ns/" + nsid + "/endpoint/" + endpoint + '/secret')
+            .then(function (response) {
+                resolve(true)
+            })
+            .catch(function (error) {
+                // handle error
+                reject(false)
+            })
+        })
+    }
+
+    static setSecret(nsid:string, endpoint:string, name:string, password: string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            let secret = {
+                name: name,
+                password: password
+            }
+            axios.put(root + "/deploy/ns/" + nsid + "/endpoint/" + endpoint + '/secret', secret)
+            .then(function (response) {
+                resolve(true)
+            })
+            .catch(function (error) {
+                // handle error
+                reject(false)
+            })
+        })
+    }
+
     static get(nsid:string, endpoint:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -80,10 +113,71 @@ interface EndpointProps {
     ns: string
 }
 
-class EndpointCard extends React.Component<EndpointProps> {
+interface EndpointCardState {
+    name:string
+    password:string
+    secretMsg:string
+}
+
+class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
 
     constructor(props:EndpointProps) {
         super(props);
+        this.state = {
+            name: "",
+            password: "",
+            secretMsg: ""
+        }
+        this.setSecret = this.setSecret.bind(this)
+        this.updateSecret = this.updateSecret.bind(this)
+    }
+
+    componentDidMount() {
+        let ctx =this
+        if (this.props.endpoint.id === undefined) {return}
+        EndpointService.hasSecret(this.props.ns, this.props.endpoint.id).then(res => {
+            ctx.setState({secretMsg: "You already have some credentials for this endpoint"})
+        }).catch(err => {
+            ctx.setState({secretMsg: "No credentials defined yet"})
+        })
+    }
+
+    componentDidUpdate(prevProps: EndpointProps, _: EndpointCardState) {
+        let ctx = this
+        if (this.props.endpoint.id === undefined) {return}
+
+        if(prevProps.endpoint.id !== this.props.endpoint.id) {
+            EndpointService.hasSecret(this.props.ns, this.props.endpoint.id).then(res => {
+                ctx.setState({secretMsg: "You already have some credentials for this endpoint"})
+            }).catch(err => {
+                ctx.setState({secretMsg: "No credentials defined yet"})
+            })
+        }
+    }
+
+    updateSecret(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            switch(event.currentTarget.name) {
+                case "name": {
+                    this.setState({name: event.currentTarget.value})
+                    break
+                }
+                case "password": {
+                    this.setState({password: event.currentTarget.value})
+                    break
+                }
+            }
+        }
+    }
+
+    setSecret(){
+        let ctx = this
+        EndpointService.setSecret(this.props.ns, this.props.endpoint.id, this.state.name, this.state.password).then(res => {
+            ctx.setState({secretMsg: "Secret updated"})
+        }).catch(err => {
+            ctx.setState({secretMsg: err.message})
+        })
+
     }
 
     render() {
@@ -91,6 +185,22 @@ class EndpointCard extends React.Component<EndpointProps> {
             <div className="card">
                 { this.props.endpoint.id && 
                 <div className="card-body">
+                    <div className="card">
+                        <div className="card-header">Endpoint credentials [{this.state.secretMsg}]</div>
+                        <div className="card-body">
+                            <div className="form-group row">
+                                <label htmlFor="name">Name</label>
+                                <input className="form-control" name="name" value={this.state.name} onChange={this.updateSecret}/>
+                            </div>
+                            <div className="form-group row">
+                                <label htmlFor="password">Password</label>
+                                <input className="form-control" name="password" value={this.state.password} onChange={this.updateSecret}/>
+                            </div>
+                            <div className="form-group row">
+                                <button type="button" className="btn btn-primary" onClick={this.setSecret}>Add credentials</button>
+                            </div>
+                        </div>
+                    </div>
                     <form className="form">
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
