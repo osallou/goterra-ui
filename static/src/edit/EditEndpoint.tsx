@@ -133,14 +133,14 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
             EndpointService.get(this.props.match.params.nsid, this.props.match.params.endpointid).then(endpoint => {
                 ctx.setState({endpoint: endpoint})
             }).catch(err => {
-                ctx.setState({msg: err})
+                ctx.setState({msg: err.message})
             })
         }
     }
 
     onChangeType(event:React.FormEvent<HTMLSelectElement>) {
         if (event.currentTarget.value != null) {
-            let endpoint = this.state.endpoint
+            let endpoint = {...this.state.endpoint}
             endpoint.kind = event.currentTarget.value
             endpoint.config = this.getConfig(endpoint.kind)
             this.setState({endpoint: endpoint})
@@ -163,7 +163,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
     }
 
     onAddImage() {
-        let endpoint = this.state.endpoint
+        let endpoint = {...this.state.endpoint}
         endpoint.images[this.state.imageName] = this.state.imageID
         this.setState({endpoint: endpoint})
     }
@@ -171,7 +171,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
 
     onChangeEndpoint(event:React.FormEvent<HTMLInputElement>) {
         if (event.currentTarget.value != null) {
-            let endpoint = this.state.endpoint
+            let endpoint = {...this.state.endpoint}
             switch(event.currentTarget.name) {
                 case "name": {
                     endpoint.name = event.currentTarget.value
@@ -185,7 +185,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
 
     onConfigChange(event:React.FormEvent<HTMLInputElement>) {
         if (event.currentTarget.value != null) {
-            let endpoint = this.state.endpoint
+            let endpoint = {...this.state.endpoint}
             endpoint.config[event.currentTarget.name] = event.currentTarget.value
             this.setState({endpoint: endpoint})
         }
@@ -193,7 +193,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
 
     onFeatureChange(event:React.FormEvent<HTMLInputElement>) {
         if (event.currentTarget.value != null) {
-            let endpoint = this.state.endpoint
+            let endpoint = {...this.state.endpoint}
             endpoint.features[event.currentTarget.name] = event.currentTarget.value
             this.setState({endpoint: endpoint})
         }
@@ -202,7 +202,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
     trashImage(image:string) {
         let ctx = this
         return function() {
-            let endpoint = ctx.state.endpoint
+            let endpoint = {...ctx.state.endpoint}
             delete endpoint.images[image]
             ctx.setState({endpoint: endpoint})
         }
@@ -211,20 +211,21 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
     saveEndpoint() {
         let ctx = this
         if(this.state.endpoint.id == "") {
-            delete this.state.endpoint.id
-            EndpointService.create(this.state.namespace, this.state.endpoint).then(endpoint => {
+            let saveEndpoint = { ...this.state.endpoint}
+            delete saveEndpoint.id
+            EndpointService.create(this.state.namespace, saveEndpoint).then(endpoint => {
                 ctx.setState({msg: "Endpoint created"})
-                this.props.history.push(`/ns/${this.state.namespace}`)
+                ctx.props.history.push(`/ns/${this.state.namespace}`)
             }).catch(err => {
-                ctx.setState({msg: err})
+                ctx.setState({msg: err.message})
             })
         }
         else {
             EndpointService.update(this.state.namespace, this.state.endpoint).then(endpoint => {
                 ctx.setState({msg: "Endpoint updated"})
-                this.props.history.push(`/ns/${this.state.namespace}`)
+                ctx.props.history.push(`/ns/${this.state.namespace}`)
             }).catch(err => {
-                ctx.setState({msg: err})
+                ctx.setState({msg: err.message})
             })
         }
     }
@@ -277,7 +278,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
                         </div>
                         {  Object.keys(this.state.endpoint.images).map((key:string) => (
                             <div className="form-group row" key={key}>
-                                <label htmlFor="name">{key}  <span onClick={this.trashImage(key)}><FontAwesomeIcon icon="trash-alt"/></span></label>
+                                <label htmlFor={key}>{key}  <span onClick={this.trashImage(key)}><FontAwesomeIcon icon="trash-alt"/></span></label>
                                 <input className="form-control" name={key} readOnly value={this.state.endpoint.images[key]}/>
                             </div>
                         ))}

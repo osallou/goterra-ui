@@ -135,25 +135,25 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
         NameSpaceService.get(this.props.match.params.nsid).then(ns => {
             ctx.setState({ns: ns})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
 
         NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
             ctx.setState({endpoints: endpoints})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
 
         NameSpaceService.recipes(this.props.match.params.nsid).then(recipes => {
             ctx.setState({recipes: recipes})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
 
         NameSpaceService.apps(this.props.match.params.nsid).then(apps => {
             ctx.setState({apps: apps})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
     }
 
@@ -198,6 +198,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         {this.state.endpoints && this.state.endpoints.map((endpoint, index) => {
                         return (<div key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
                         })}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/endpoint`}><button type="button" className="btn btn-primary">Create</button></Link>
                         </div>
                     </div>
 
@@ -205,6 +206,8 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         <div className="card-header">Recipes <Link to={`/ns/${this.state.ns["_id"]}/recipe`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
                         <div className="card-body">
                         {this.state.recipes && <div>{this.state.recipes.length}</div>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/recipe`}><button type="button" className="btn btn-primary">Create</button></Link>
+
                         </div>
                     </div>
 

@@ -145,7 +145,7 @@ export class EndpointSpace extends React.Component<RouteComponentProps<MatchPara
         EndpointService.get(this.props.match.params.nsid, this.props.match.params.endpointid).then(endpoint => {
             ctx.setState({endpoint: endpoint})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
 
     }

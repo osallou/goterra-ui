@@ -8,7 +8,7 @@ import {Auth} from './Auth/Auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 
-class RecipeService {
+export class RecipeService {
     static get(nsid:string, recipe:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -32,6 +32,38 @@ class RecipeService {
             .then(function (response) {
                 // handle success
                 resolve(response.data.recipes)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static create(nsid:string, recipe:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.post(root + "/deploy/ns/" + nsid + "/recipe", recipe)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.recipe)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static update(nsid:string, recipe:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.put(root + "/deploy/ns/" + nsid + "/recipe/" + recipe.id, recipe)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.recipe)
             })
             .catch(function (error) {
                 // handle error
@@ -98,7 +130,8 @@ class RecipeCard extends React.Component<RecipeCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.recipe.name}</div>
+               <div className="card-header">{this.props.recipe.name}   <Link to={`/ns/${this.props.ns}/edit/recipe/${this.props.recipe.id}`}><button type="button" className="btn btn-primary">Edit</button></Link>
+</div>
                 <div className="card-body">
                     {this.props.recipe.description}
                     { this.props.recipe.public ==true && <FontAwesomeIcon icon="lock-open"/>}
@@ -149,7 +182,7 @@ class RecipeCard extends React.Component<RecipeCardProps> {
                         {this.props.recipe.inputs && Object.keys(this.props.recipe.inputs).map((key, _) => (
                         <div className="form-group row" key={key}>
                             <label htmlFor={"input"+key}>{key}</label>
-                            <textarea rows={20} className="form-control" name={"input"+key} readOnly value={this.props.recipe.inputs[key]}/>
+                            <input className="form-control" name={"input"+key} readOnly value={this.props.recipe.inputs[key]}/>
                         </div>
                         ))}
                     </form>
@@ -188,13 +221,13 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
             RecipeService.list(this.props.match.params.nsid).then(recipes => {
                 this.setState({recipes: recipes})
             }).catch(error => {
-                this.setState({msg: error})
+                this.setState({msg: error.message})
             })
         } else {
             RecipeService.get(this.props.match.params.nsid, this.props.match.params.recipeid).then(recipe => {
                 this.setState({recipe: recipe})
             }).catch(error => {
-                this.setState({msg: error})
+                this.setState({msg: error.message})
             })
         }
     }
@@ -209,7 +242,6 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
                     <li className="breadcrumb-item" aria-current="page"><Link to={`/ns/${this.state.ns}`}>{this.state.ns}</Link></li>
                     <li className="breadcrumb-item" aria-current="page">recipe</li>
                     {this.state.recipe && <li className="breadcrumb-item active" aria-current="page"><Link to={`/ns/${this.state.ns}/recipe/${this.state.recipe["id"]}`}>{this.state.recipe["id"]}</Link></li>}
-
                 </ol>
                 </nav>
                 </div>

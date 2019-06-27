@@ -13,6 +13,8 @@ import {RecipeSpace} from './Recipe'
 import {AppsSpace} from './Apps'
 import {Runs} from './Runs'
 import {EditEndpoint} from './edit/EditEndpoint'
+import {EditRecipe} from './edit/EditRecipe'
+
 
 
 import axios from 'axios'
@@ -42,6 +44,23 @@ axios.interceptors.response.use(function (config) {
   if(error.response === undefined) {error.response={data:{msg: 'error'}}}
   return Promise.reject(error)
 })
+
+
+class Home extends React.Component {
+
+  render() {
+    return (
+      <div className="card">
+        <div className="card-header">Welcome to goterra</div>
+      <div className="card-body">
+          <span><a href="https://github.com/osallou/goterra">More info on goterra</a></span>
+          <div>TODO explain</div>
+      </div>
+  </div>
+    )
+  }
+}
+
 
 type AppState = {
   isLogged:boolean,
@@ -139,6 +158,7 @@ class App extends React.Component<AppProps, AppState> {
       </div>
 
       <Switch>
+      <Route exact path='/' component={Home}/>
         <Route exact path='/ns' component={NameSpaces}/>
         <Route exact path='/ns/:nsid' component={NameSpace}/>
         <Route exact path='/ns/:nsid/endpoint/:endpointid' component={EndpointSpace}/>
@@ -148,6 +168,8 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/app/:appid' component={AppsSpace}/>
         <Route exact path='/ns/:nsid/edit/endpoint/:endpointid' component={EditEndpoint}/>
         <Route exact path='/ns/:nsid/edit/endpoint' component={EditEndpoint}/>
+        <Route exact path='/ns/:nsid/edit/recipe/:recipeid' component={EditRecipe}/>
+        <Route exact path='/ns/:nsid/edit/recipe' component={EditRecipe}/>
         <Route exact path='/run' component={Runs}/>
 
 

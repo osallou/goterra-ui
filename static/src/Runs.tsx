@@ -199,7 +199,7 @@ interface RunCardState {
         RunService.stop(this.props.run.namespace, this.props.run.id).then(res => {
             ctx.setState({msg: "Stop request sent"})
         }).catch(err => {
-            ctx.setState({msg: err})
+            ctx.setState({msg: err.message})
         })
     }
 
@@ -224,7 +224,7 @@ interface RunCardState {
             }
             ctx.setState({endpoints: ns_endpoints})
         }).catch(error => {
-            ctx.setState({msg: error})
+            ctx.setState({msg: error.message})
         })
 
         if(this.props.run.deployment !== undefined && this.props.run.deployment !== ""){
