@@ -12,6 +12,7 @@ import {EndpointSpace} from './Endpoint'
 import {RecipeSpace} from './Recipe'
 import {AppsSpace} from './Apps'
 import {Runs} from './Runs'
+import {EditEndpoint} from './edit/EditEndpoint'
 
 
 import axios from 'axios'
@@ -145,6 +146,8 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/recipe/:recipeid' component={RecipeSpace}/>
         <Route exact path='/ns/:nsid/app' component={AppsSpace}/>
         <Route exact path='/ns/:nsid/app/:appid' component={AppsSpace}/>
+        <Route exact path='/ns/:nsid/edit/endpoint/:endpointid' component={EditEndpoint}/>
+        <Route exact path='/ns/:nsid/edit/endpoint' component={EditEndpoint}/>
         <Route exact path='/run' component={Runs}/>
 
 

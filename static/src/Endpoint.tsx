@@ -19,11 +19,43 @@ interface EndpointState {
     endpoint: any
 }
 
-class EndpointService {
+export class EndpointService {
     static get(nsid:string, endpoint:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
             axios.get(root + "/deploy/ns/" + nsid + "/endpoint/" + endpoint)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.endpoint)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static create(nsid:string, endpoint:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.post(root + "/deploy/ns/" + nsid + "/endpoint", endpoint)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.endpoint)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static update(nsid:string, endpoint:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.put(root + "/deploy/ns/" + nsid + "/endpoint/" + endpoint.id, endpoint)
             .then(function (response) {
                 // handle success
                 resolve(response.data.endpoint)
@@ -128,7 +160,9 @@ export class EndpointSpace extends React.Component<RouteComponentProps<MatchPara
                     <li className="breadcrumb-item" aria-current="page"><Link to={`/ns/${this.state.ns}`}>{this.state.ns}</Link></li>
                     <li className="breadcrumb-item" aria-current="page">endpoint</li>
                     <li className="breadcrumb-item active" aria-current="page"><Link to={`/ns/${this.state.ns}/endpoint/${this.state.endpoint["id"]}`}>{this.state.endpoint["id"]}</Link></li>
-
+                </ol>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><Link to={`/ns/${this.state.ns}/edit/endpoint/${this.state.endpoint["id"]}`}>Edit</Link></li>
                 </ol>
                 </nav>
                 </div>
