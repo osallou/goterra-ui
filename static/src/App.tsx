@@ -14,6 +14,7 @@ import {AppsSpace} from './Apps'
 import {Runs} from './Runs'
 import {EditEndpoint} from './edit/EditEndpoint'
 import {EditRecipe} from './edit/EditRecipe'
+import {Api} from './Api'
 
 
 
@@ -142,6 +143,15 @@ class App extends React.Component<AppProps, AppState> {
             <li className="nav-item">
               <Link className="nav-link" to="/run">Runs</Link>
             </li>
+            <li className="nav-item dropdown">
+              <a className="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">API</a>
+              <div className="dropdown-menu">
+                <Link className="dropdown-item" to="/api/goterra-auth">Auth</Link>
+                <Link className="dropdown-item" to="/api/goterra-deploy">Deploy</Link>
+                <Link className="dropdown-item" to="/api/goterra-store">Store</Link>
+                <Link className="dropdown-item" to="/api/goterra-run-agent">Run-agent</Link>
+              </div>
+            </li>
           </ul>
           <ul className="navbar-nav my-2 my-lg-0">
             { !this.state.isLogged && <li className="nav-item"><Link className="nav-link" to="/login">login</Link></li>}
@@ -171,7 +181,7 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/edit/recipe/:recipeid' component={EditRecipe}/>
         <Route exact path='/ns/:nsid/edit/recipe' component={EditRecipe}/>
         <Route exact path='/run' component={Runs}/>
-
+        <Route exact path='/api/:id' component={Api}/>
 
         <Route exact path='/login'
           render={(props) => <Login {...props} onLogin={this.onLogin} onMessage={this.onMessage}/>}
