@@ -1,8 +1,8 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {Auth} from './Auth/Auth'
 import {NameSpaceService} from './Namespace'
@@ -237,7 +237,7 @@ interface RunCardState {
     componentDidUpdate(prevProps: RunCardProps, _: RunCardState) {
         let ctx = this
 
-        if(prevProps.run.id == this.props.run.id) {
+        if(prevProps.run.id === this.props.run.id) {
             // no run change
             return
         }

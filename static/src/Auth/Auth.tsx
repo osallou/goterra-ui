@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 
 import { Redirect } from 'react-router-dom'
 import axios from 'axios'

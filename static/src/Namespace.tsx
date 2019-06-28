@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
 
@@ -98,9 +98,10 @@ interface EndpointProps {
 
 class EndpointCard extends React.Component<EndpointProps> {
 
+    /*
     constructor(props:EndpointProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (

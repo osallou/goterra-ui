@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
 
@@ -102,9 +102,10 @@ interface AppCardProps {
 
 class AppSmallCard extends React.Component<AppSmallCardProps> {
 
+    /*
     constructor(props:AppSmallCardProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (
@@ -112,8 +113,8 @@ class AppSmallCard extends React.Component<AppSmallCardProps> {
                <div className="card-header" onClick={this.props.onPress(this.props.app)}>{this.props.app.name}</div>
                 <div className="card-body">
                     {this.props.app.description}
-                    { this.props.app.public ==true && <FontAwesomeIcon icon="lock-open"/>}
-                    { this.props.app.public ==false && <FontAwesomeIcon icon="lock"/>}
+                    { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
+                    { this.props.app.public === false && <FontAwesomeIcon icon="lock"/>}
                 </div>
                 
             </div>
@@ -123,9 +124,10 @@ class AppSmallCard extends React.Component<AppSmallCardProps> {
 
 class AppCard extends React.Component<AppCardProps> {
 
+    /*
     constructor(props:AppCardProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (
@@ -133,8 +135,8 @@ class AppCard extends React.Component<AppCardProps> {
                <div className="card-header">{this.props.app.name} <Link to={`/ns/${this.props.ns}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
                 <div className="card-body">
                     {this.props.app.description}
-                    { this.props.app.public ==true && <FontAwesomeIcon icon="lock-open"/>}
-                    { this.props.app.public ==false && <FontAwesomeIcon icon="lock"/>}
+                    { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
+                    { this.props.app.public === false && <FontAwesomeIcon icon="lock"/>}
 
                     <form onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
@@ -213,15 +215,15 @@ export class AppsSpace extends React.Component<RouteComponentProps<MatchParams>,
         let ctx = this
         if (this.props.match.params.appid === undefined){
             AppService.list(this.props.match.params.nsid).then(apps => {
-                this.setState({apps: apps})
+                ctx.setState({apps: apps})
             }).catch(error => {
-                this.setState({msg: error})
+                ctx.setState({msg: error})
             })
         } else {
             AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
-                this.setState({app: app})
+                ctx.setState({app: app})
             }).catch(error => {
-                this.setState({msg: error})
+                ctx.setState({msg: error})
             })
         }
     }

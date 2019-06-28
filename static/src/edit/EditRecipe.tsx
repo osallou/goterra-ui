@@ -1,11 +1,7 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
-import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import { string } from "prop-types";
-// '/ns/:nsid/edit/endpoint/:endpointid'
 
 import {RecipeService} from '../Recipe'
 import {NameSpaceService} from '../Namespace'
@@ -188,7 +184,7 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
     onChangePublic(event:React.FormEvent<HTMLSelectElement>) {
         if (event.currentTarget.value != null) {
             let recipe = {...this.state.recipe}
-            if (event.currentTarget.value == "true") {
+            if (event.currentTarget.value === "true") {
                 recipe.public = true
             } else {
                 recipe.public = false
@@ -252,7 +248,7 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
             ctx.setState({msg: "Error: both base images and recipe parent are set"})
             return
         }
-        if(this.state.recipe.id == "") {
+        if(this.state.recipe.id === "") {
             let saveRecipe = { ...this.state.recipe}
             delete saveRecipe.id
             RecipeService.create(this.state.namespace, saveRecipe).then(recipe => {

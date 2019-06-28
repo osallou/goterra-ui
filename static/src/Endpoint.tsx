@@ -1,11 +1,11 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
 
-import {Auth} from './Auth/Auth'
+// import {Auth} from './Auth/Auth'
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 
 interface EndpointProps {

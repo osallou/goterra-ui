@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Route, Redirect, Link } from 'react-router-dom'
 
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 
 import {Auth, Login, Logout, User} from './Auth/Auth'
@@ -23,7 +23,6 @@ import axios from 'axios'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
-import { render } from 'react-dom';
 library.add(faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
 
 
@@ -145,7 +144,7 @@ class App extends React.Component<AppProps, AppState> {
               <Link className="nav-link" to="/run">Runs</Link>
             </li>
             <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">API</a>
+              <div className="nav-link dropdown-toggle" data-toggle="dropdown"  role="button" aria-haspopup="true" aria-expanded="false">API</div>
               <div className="dropdown-menu">
                 <Link className="dropdown-item" to="/api/goterra-auth">Auth</Link>
                 <Link className="dropdown-item" to="/api/goterra-deploy">Deploy</Link>

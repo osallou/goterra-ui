@@ -5,7 +5,7 @@ import queryString from 'query-string'
 import axios from 'axios'
 
 
-import {Auth, Login, Logout, User} from './Auth'
+import {Auth} from './Auth'
 
 type GoogleAuthState = {
     logged: boolean

@@ -1,12 +1,9 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
-import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {EndpointService} from '../Endpoint'
-import { string } from "prop-types";
-// '/ns/:nsid/edit/endpoint/:endpointid'
 
 interface MatchParams {
     nsid: string
@@ -210,7 +207,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
 
     saveEndpoint() {
         let ctx = this
-        if(this.state.endpoint.id == "") {
+        if(this.state.endpoint.id === "") {
             let saveEndpoint = { ...this.state.endpoint}
             delete saveEndpoint.id
             EndpointService.create(this.state.namespace, saveEndpoint).then(endpoint => {

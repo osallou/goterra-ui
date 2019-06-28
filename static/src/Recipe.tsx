@@ -1,9 +1,9 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
 
-import {Auth} from './Auth/Auth'
+// import {Auth} from './Auth/Auth'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -102,9 +102,10 @@ interface RecipeCardProps {
 
 class RecipeSmallCard extends React.Component<RecipeSmallCardProps> {
 
+    /*
     constructor(props:RecipeSmallCardProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (
@@ -112,8 +113,8 @@ class RecipeSmallCard extends React.Component<RecipeSmallCardProps> {
                <div className="card-header" onClick={this.props.onPress(this.props.recipe)}>{this.props.recipe.name}</div>
                 <div className="card-body">
                     {this.props.recipe.description}
-                    { this.props.recipe.public ==true && <FontAwesomeIcon icon="lock-open"/>}
-                    { this.props.recipe.public ==false && <FontAwesomeIcon icon="lock"/>}
+                    { this.props.recipe.public === true && <FontAwesomeIcon icon="lock-open"/>}
+                    { this.props.recipe.public === false && <FontAwesomeIcon icon="lock"/>}
                 </div>
                 
             </div>
@@ -123,9 +124,10 @@ class RecipeSmallCard extends React.Component<RecipeSmallCardProps> {
 
 class RecipeCard extends React.Component<RecipeCardProps> {
 
+    /*
     constructor(props:RecipeCardProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (
@@ -134,8 +136,8 @@ class RecipeCard extends React.Component<RecipeCardProps> {
 </div>
                 <div className="card-body">
                     {this.props.recipe.description}
-                    { this.props.recipe.public ==true && <FontAwesomeIcon icon="lock-open"/>}
-                    { this.props.recipe.public ==false && <FontAwesomeIcon icon="lock"/>}
+                    { this.props.recipe.public === true && <FontAwesomeIcon icon="lock-open"/>}
+                    { this.props.recipe.public === false && <FontAwesomeIcon icon="lock"/>}
 
                     <form onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
@@ -219,15 +221,15 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
         let ctx = this
         if (this.props.match.params.recipeid === undefined){
             RecipeService.list(this.props.match.params.nsid).then(recipes => {
-                this.setState({recipes: recipes})
+                ctx.setState({recipes: recipes})
             }).catch(error => {
-                this.setState({msg: error.message})
+                ctx.setState({msg: error.message})
             })
         } else {
             RecipeService.get(this.props.match.params.nsid, this.props.match.params.recipeid).then(recipe => {
-                this.setState({recipe: recipe})
+                ctx.setState({recipe: recipe})
             }).catch(error => {
-                this.setState({msg: error.message})
+                ctx.setState({msg: error.message})
             })
         }
     }

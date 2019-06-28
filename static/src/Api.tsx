@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
 import SwaggerUI from 'swagger-ui-react'
 import "swagger-ui-react/swagger-ui.css"

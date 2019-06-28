@@ -1,14 +1,9 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
-import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { string } from "prop-types";
-// '/ns/:nsid/edit/endpoint/:endpointid'
-
 import {RecipeService} from '../Recipe'
-import {NameSpaceService} from '../Namespace'
 import {AppService} from '../Apps'
 import {TerraformWizard} from '../TerraformWizard'
 
@@ -196,7 +191,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
     onChangePublic(event:React.FormEvent<HTMLSelectElement>) {
         if (event.currentTarget.value != null) {
             let app = {...this.state.app}
-            if (event.currentTarget.value == "true") {
+            if (event.currentTarget.value === "true") {
                 app.public = true
             } else {
                 app.public = false
@@ -239,7 +234,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
     saveRecipe() {        
         let ctx = this
 
-        if(this.state.app.id == "") {
+        if(this.state.app.id === "") {
             let saveApp = { ...this.state.app}
             delete saveApp.id
             RecipeService.create(this.state.namespace, saveApp).then(app => {

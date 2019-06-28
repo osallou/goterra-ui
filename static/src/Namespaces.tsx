@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps, Link } from 'react-router-dom'
 
 import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -45,9 +45,10 @@ class NameSpaceService {
 
 class NameSpaceCard extends React.Component<NameSpaceProps> {
 
+    /*
     constructor(props:NameSpaceProps) {
         super(props);
-    }
+    }*/
 
     render() {
         return (

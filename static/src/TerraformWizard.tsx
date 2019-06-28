@@ -1,5 +1,4 @@
 import React from "react";
-import { faMehRollingEyes } from "@fortawesome/free-solid-svg-icons";
 
 
 interface TerraformWizardProps {
@@ -67,7 +66,7 @@ export class TerraformWizard extends React.Component<TerraformWizardProps, Terra
         }
 
         for(let model of this.state.model) {
-            if (model.name == this.state.newvm) {
+            if (model.name === this.state.newvm) {
                 this.setState({msg: "A VM with this name already exists"})
                 return                
             }
@@ -131,7 +130,7 @@ export class TerraformWizard extends React.Component<TerraformWizardProps, Terra
                 let model = [...ctx.state.model]
                 let value = event.currentTarget.value
                 for(let m of model){
-                    if (m.name == key) {
+                    if (m.name === key) {
                         switch (event.currentTarget.name) {
                             case "public_ip": {
                                 m.public_ip = value
