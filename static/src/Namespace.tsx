@@ -215,6 +215,8 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         <div className="card-header">Applications <Link to={`/ns/${this.state.ns["_id"]}/app`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
                         <div className="card-body">
                         {this.state.apps && <div>{this.state.apps.length}</div>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/app`}><button type="button" className="btn btn-primary">Create</button></Link>
+
                         </div>
                     </div>
                 </div>

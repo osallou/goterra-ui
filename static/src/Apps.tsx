@@ -7,7 +7,7 @@ import axios from "axios"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-class AppService {
+ export class AppService {
     static get(nsid:string, app:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -31,6 +31,38 @@ class AppService {
             .then(function (response) {
                 // handle success
                 resolve(response.data.apps)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static create(nsid:string, app:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.post(root + "/deploy/ns/" + nsid + "/app", app)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.app)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static update(nsid:string, app:any): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.put(root + "/deploy/ns/" + nsid + "/endpoint/" + app.id, app)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.app)
             })
             .catch(function (error) {
                 // handle error
@@ -98,7 +130,7 @@ class AppCard extends React.Component<AppCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.app.name}</div>
+               <div className="card-header">{this.props.app.name} <Link to={`/ns/${this.props.ns}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
                 <div className="card-body">
                     {this.props.app.description}
                     { this.props.app.public ==true && <FontAwesomeIcon icon="lock-open"/>}
