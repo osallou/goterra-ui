@@ -129,8 +129,8 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
         if (this.props.match.params.endpointid !== undefined && this.props.match.params.endpointid !== "") {
             EndpointService.get(this.props.match.params.nsid, this.props.match.params.endpointid).then(endpoint => {
                 ctx.setState({endpoint: endpoint})
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
     }
@@ -213,16 +213,16 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
             EndpointService.create(this.state.namespace, saveEndpoint).then(endpoint => {
                 ctx.setState({msg: "Endpoint created"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
         else {
             EndpointService.update(this.state.namespace, this.state.endpoint).then(endpoint => {
                 ctx.setState({msg: "Endpoint updated"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
     }

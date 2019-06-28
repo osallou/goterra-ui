@@ -1,192 +1,247 @@
 import React from "react";
-import { Redirect, RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
-import axios from "axios"
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import {Auth} from './Auth/Auth'
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-
-class RunService {
-    static get(nsid:string, run:string): Promise<any> {
-        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
-        return new Promise( (resolve, reject) => {
-            axios.get(root + "/deploy/ns/" + nsid + "/run/" + run)
-            .then(function (response) {
-                // handle success
-                resolve(response.data.run)
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-                reject(error)
-            })
-        })
-    }
-
-    static list_app(nsid:string, app:string): Promise<any[]> {
-        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
-        return new Promise( (resolve, reject) => {
-            axios.get(root + "/deploy/ns/" + nsid + "/run/" + app)
-            .then(function (response) {
-                // handle success
-                resolve(response.data.runs)
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-                reject(error)
-            })
-        })
-    }
-
-
-    static list(nsid:string): Promise<any[]> {
-        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
-        return new Promise( (resolve, reject) => {
-            axios.get(root + "/deploy/ns/" + nsid + "/run")
-            .then(function (response) {
-                // handle success
-                resolve(response.data.runs)
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-                reject(error)
-            })
-        })
-    }
-
-}
-
-
+// import {RecipeService} from './Recipe'
+import {AppService} from './Apps'
+import {EndpointService} from './Endpoint'
+import { NameSpaceService } from "./Namespace";
+import {RunService} from './Runs'
 
 interface MatchParams {
     nsid: string
-    runid: string
+    appid: string
 }
 
 interface RunState {
+    namespace: string
     msg: string
-    ns: any
-    run: any | null
-    runs: any[]
-}
+    appInputs: any
+    app: any
 
-interface RunSmallCardProps {
-    run: any
-    ns: string
-    onPress: Function
-}
+    run: Run
+    endpoints: any[]
 
-interface RunCardProps {
-    run: any
-    ns: string
-}
+    inputName: string
+    inputValue: string
+    endpoint: string
+    endpointName: string
+    hasSecret: boolean
 
-class RunSmallCard extends React.Component<RunSmallCardProps> {
-
-    constructor(props:RunSmallCardProps) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <div className="card">
-               <div className="card-header" onClick={this.props.onPress(this.props.run)}>{this.props.run.id}</div>
-                <div className="card-body">
-
-                </div>
-                
-            </div>
-        )
-    }
-}
-
-class RunCard extends React.Component<RunCardProps> {
-
-    constructor(props:RunCardProps) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <div className="card">
-               <div className="card-header">{this.props.run.id}</div>
-                <div className="card-body">
-                   
-                </div>
-                
-            </div>
-        )
-    }
 }
 
 
-export class RunSpace extends React.Component<RouteComponentProps<MatchParams>, RunState> {
+// EndPoint specifies a cloud endpoint data
+interface Run {
+    name:string
+    description:string
+    appID:string
+    inputs:any
+    secretinputs:any
+    endpoint:string
+    namespace:string
+
+}
+
+
+
+export class RunApp extends React.Component<RouteComponentProps<MatchParams>, RunState> {
 
     constructor(props:RouteComponentProps<MatchParams>) {
         super(props);
         this.state = {
+            namespace: this.props.match.params.nsid,
             msg: "",
-            ns: this.props.match.params.nsid,
-            run: null,
-            runs: []
+            app: null,
+            appInputs: null,
+            run: {
+                name: "",
+                description: "",
+                appID: this.props.match.params.appid,
+                inputs: {},
+                secretinputs:{},
+                endpoint: "",
+                namespace: this.props.match.params.nsid,
+            },
+            endpoints: [],
+        
+            inputName: "",
+            inputValue: "",
+            endpoint: "",
+            endpointName: "",
+            hasSecret: false       
         }
 
-        this.selectRun = this.selectRun.bind(this)
+        this.onEndpointChange = this.onEndpointChange.bind(this)
+        this.onRun = this.onRun.bind(this)
+        this.onChange = this.onChange.bind(this)
     }
 
-    selectRun(run: any) {
+    onRun() {
         let ctx =this
-        return function() {
-            ctx.setState({run: run})
+        if (!this.state.hasSecret && (this.state.run.inputs["user_name"] === "" || this.state.run.inputs["password"] ==="")) {
+            this.setState({msg: "user name or password is empty and no secret is defined for this endpoint"})
+            return
+        }
+        let run = {...this.state.run}
+        if(this.state.hasSecret) {
+            delete run.inputs["user_name"]
+            delete run.inputs["password"]
+        }
+        if (run.inputs["password"]) {
+            run.secretinputs["password"] = run.inputs["password"]
+            delete run.inputs["password"]
+        }
+        if (run.endpoint === "") {
+            this.setState({msg: "no endpoint selected"})
+            return            
+        }
+        RunService.run(this.props.match.params.nsid, this.props.match.params.appid, run).then(newrun => {
+            ctx.props.history.push("/run")
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+    }
+
+    onChange(input:string) {
+        let ctx =this
+        return function(event:React.FormEvent<HTMLInputElement>) {
+            if (event.currentTarget.value != null && event.currentTarget.value !== "") {
+                let run = {...ctx.state.run}
+                run.inputs[input] = event.currentTarget.value
+                ctx.setState({run: run})
+            }
+        }
+    }
+
+    onEndpointChange(event:React.FormEvent<HTMLSelectElement>) {
+        let ctx =this
+        if (event.currentTarget.value != null && event.currentTarget.value !== "") {
+            let run = {...this.state.run}
+            run.endpoint = event.currentTarget.value
+            EndpointService.hasSecret(this.props.match.params.nsid, run.endpoint).then(res => {
+                ctx.setState({hasSecret: true})
+            }).catch(err => {
+                ctx.setState({hasSecret: false})
+            })
+            let endpointName = ""
+            for(let ep of this.state.endpoints) {
+                if (ep.id === run.endpoint) {
+                    endpointName = ep.name
+                    break
+                } 
+            }
+            if(endpointName === "") {
+                this.setState({msg: "endpoint not found"})
+                return
+            }
+            this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName})
         }
     }
 
     componentDidMount() {
         let ctx = this
-        if (this.props.match.params.runid === undefined){
-            RunService.list(this.props.match.params.nsid).then(runs => {
-                this.setState({runs: runs})
+
+        AppService.getInputs(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
+            console.log("appinputs", app)
+            ctx.setState({appInputs: app})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+
+        AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
+            console.log("app", app)
+            ctx.setState({app: app})
+            NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
+                let endpointList:any[] = []
+                let availableTemplates = []
+                let controlTemplates = false
+                if (app.model === undefined || app.model === null || app.model.length === 0) {
+                    controlTemplates = true
+                    let kinds = Object.keys(app.templates)
+                    for(let kind of kinds) {
+                        availableTemplates.push(kind)
+                    }
+                }
+                for(let endpoint of endpoints) {
+                    if(controlTemplates && availableTemplates.indexOf(endpoint.kind) < 0) {
+                        console.log("no template available for this kind of endpoint", endpoint.kind)
+                        continue
+                    }
+                    endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind})
+                }
+                console.log("endpoints", endpointList)
+                ctx.setState({endpoints: endpointList})
             }).catch(error => {
-                this.setState({msg: error})
+                ctx.setState({msg: error.response.data.message || error.message})
             })
-        } else {
-            RunService.get(this.props.match.params.nsid, this.props.match.params.runid).then(run => {
-                this.setState({run: run})
-            }).catch(error => {
-                this.setState({msg: error})
-            })
-        }
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
     }
 
     render() {
         return (
-            <div className="row">
-                <div className="col-sm-12">
-                <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                    <li className="breadcrumb-item" aria-current="page"><Link to={`/ns`}>namespaces</Link></li>
-                    <li className="breadcrumb-item" aria-current="page"><Link to={`/ns/${this.state.ns}`}>{this.state.ns}</Link></li>
-                    <li className="breadcrumb-item" aria-current="page">run</li>
-                    {this.state.run && <li className="breadcrumb-item active" aria-current="page"><Link to={`/ns/${this.state.ns}/recipe/${this.state.run["id"]}`}>{this.state.run["id"]}</Link></li>}
-
-                </ol>
-                </nav>
-                </div>
-                <div className="col-sm-6">
-                    <div className="row">
-                    {this.state.runs.map((run:any, index: number) => (
-                        <div className="col-sm-6" key={run.id}><RunSmallCard onPress={this.selectRun} run={run} ns={this.state.ns}/></div>
-                    ))}
+            <div className="card">
+                <div className="card-header">New run</div>
+                <div className="card-body">
+                {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+                <form className="form"  onSubmit={e => { e.preventDefault(); }}>
+                    <div className="form-group row">
+                        <label htmlFor="endpoint">Endpoint</label>
+                        <select className="form-control" name="endpoint" value={this.state.endpoint} onChange={this.onEndpointChange}>
+                            <option value="">Select an endpoint</option>
+                            {this.state.endpoints.map((endpoint) => (
+                                <option key={endpoint.id} value={endpoint.id}>{endpoint.name}</option>
+                            ))}
+                        </select>
                     </div>
-                </div>
-                <div className="col-sm-6">
-                    { this.state.run && <RunCard run={this.state.run} ns={this.state.ns}/> }
+                    {this.state.appInputs && Object.keys(this.state.appInputs.application).length > 0 && <h4>Application inputs</h4>}
+                    {this.state.appInputs && Object.keys(this.state.appInputs.application).map((input) => (
+                        <div className="form-group row" key={input}>
+                            <label htmlFor={input}>{this.state.appInputs.application[input]}</label>
+                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                        </div>
+                    ))}
+                    { this.state.appInputs && Object.keys(this.state.appInputs.recipes).length > 0 && <h4>Recipes inputs</h4>}
+                    {this.state.appInputs && Object.keys(this.state.appInputs.recipes).map((input) => (
+                        <div className="form-group row" key={input}>
+                            <label htmlFor={input}>{this.state.appInputs.recipes[input]}</label>
+                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                        </div>
+                    ))}
+                    <h4>Endpoint inputs</h4>
+                    {!this.state.hasSecret &&
+                    <div>
+                    <div className="form-group row">
+                            <label htmlFor="user_name">User identifier</label>
+                            <input className="form-control" name="user_name" value={this.state.run.inputs["user_name"] || ""} onChange={this.onChange("user_name")}/>
+                    </div>
+                    <div className="form-group row">
+                            <label htmlFor="password">Password</label>
+                            <input type="password" className="form-control" name="password" value={this.state.run.inputs["password"] || ""} onChange={this.onChange("password")}/>
+                    </div>
+                    </div>
+                    }
+                    {this.state.hasSecret && <div>
+                        Using secret credentials stored for this endpoint
+                    </div>
+                    }
+
+                    {this.state.appInputs && this.state.endpoint !== "" && Object.keys(this.state.appInputs.endpoints[this.state.endpointName]).map((input) => (
+                        <div className="form-group row" key={input}>
+                            <label htmlFor={input}>{this.state.appInputs.endpoints[this.state.endpointName][input]}</label>
+                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                        </div>
+                    ))}
+                    
+                    <button type="button" className="btn btn-primary" onClick={this.onRun}>Run</button>
+                    
+                </form>
                 </div>
             </div>
         )
     }
+
 }

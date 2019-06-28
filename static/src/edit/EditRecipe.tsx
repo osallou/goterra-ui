@@ -97,8 +97,8 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                 }
                 console.log('recipe', recipe)
                 ctx.setState({recipe: recipe, tags: recipe.tags.join(",")})
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
 
@@ -110,8 +110,8 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                 recipeList.push({name: recipe.name, id: recipe.id})
             }
             ctx.setState({recipes: recipeList})
-        }).catch(err => {
-            ctx.setState({msg: err.message})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
         NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
@@ -123,8 +123,8 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                 })
             }
             ctx.setState({baseImages: baseImages})
-        }).catch(err => {
-            ctx.setState({msg: err.message})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
         })
     }
 
@@ -254,16 +254,16 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
             RecipeService.create(this.state.namespace, saveRecipe).then(recipe => {
                 ctx.setState({msg: "Recipe created"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
         else {
             RecipeService.update(this.state.namespace, this.state.recipe).then(recipe => {
                 ctx.setState({msg: "Recipe updated"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
     }

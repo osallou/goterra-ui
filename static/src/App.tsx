@@ -16,6 +16,7 @@ import {EditEndpoint} from './edit/EditEndpoint'
 import {EditRecipe} from './edit/EditRecipe'
 import {EditApp} from './edit/EditApp'
 import {Api} from './Api'
+import {RunApp} from './Run'
 
 
 
@@ -184,6 +185,7 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/edit/app' component={EditApp}/>
         <Route exact path='/run' component={Runs}/>
         <Route exact path='/api/:id' component={Api}/>
+        <Route exact path='/ns/:nsid/run/app/:appid' component={RunApp}/>
 
         <Route exact path='/login'
           render={(props) => <Login {...props} onLogin={this.onLogin} onMessage={this.onMessage}/>}

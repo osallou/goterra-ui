@@ -8,6 +8,23 @@ import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
  export class AppService {
+
+    static getInputs(nsid:string, app:string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/ns/" + nsid + "/app/" + app + "/inputs")
+            .then(function (response) {
+                // handle success
+                resolve(response.data.app)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
     static get(nsid:string, app:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -115,6 +132,8 @@ class AppSmallCard extends React.Component<AppSmallCardProps> {
                     {this.props.app.description}
                     { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.app.public === false && <FontAwesomeIcon icon="lock"/>}
+
+                    <div><Link to={`/ns/${this.props.ns}/run/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Run</button></Link></div>
                 </div>
                 
             </div>

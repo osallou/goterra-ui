@@ -136,25 +136,25 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
         NameSpaceService.get(this.props.match.params.nsid).then(ns => {
             ctx.setState({ns: ns})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
         NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
             ctx.setState({endpoints: endpoints})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
         NameSpaceService.recipes(this.props.match.params.nsid).then(recipes => {
             ctx.setState({recipes: recipes})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
         NameSpaceService.apps(this.props.match.params.nsid).then(apps => {
             ctx.setState({apps: apps})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
     }
 

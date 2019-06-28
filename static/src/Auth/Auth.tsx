@@ -111,7 +111,7 @@ export class Login extends React.Component<LoginProps,LoginState> {
         })
         .catch(function (error: any) {
             // handle error
-            ctx.setState({errors: error.message})
+            ctx.setState({errors: error.response.data.message || error.message})
             console.log(error);
         })
     }

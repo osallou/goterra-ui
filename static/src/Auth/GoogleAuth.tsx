@@ -58,7 +58,7 @@ export class GoogleAuth extends React.Component<GoogleAuthProps, GoogleAuthState
         .catch(function (error) {
             // handle error
             console.log(error);
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message ||error.message})
         })
     }
 

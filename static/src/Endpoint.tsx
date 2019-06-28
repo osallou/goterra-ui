@@ -174,8 +174,8 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
         let ctx = this
         EndpointService.setSecret(this.props.ns, this.props.endpoint.id, this.state.name, this.state.password).then(res => {
             ctx.setState({secretMsg: "Secret updated"})
-        }).catch(err => {
-            ctx.setState({secretMsg: err.message})
+        }).catch(error => {
+            ctx.setState({secretMsg: error.response.data.message || error.message})
         })
 
     }
@@ -255,7 +255,7 @@ export class EndpointSpace extends React.Component<RouteComponentProps<MatchPara
         EndpointService.get(this.props.match.params.nsid, this.props.match.params.endpointid).then(endpoint => {
             ctx.setState({endpoint: endpoint})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
     }

@@ -99,7 +99,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
                 ctx.setState({app: app})
             }).catch(error => {
-                ctx.setState({msg: error.message})
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
 
@@ -111,8 +111,8 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 recipeList.push({name: recipe.name, id: recipe.id})
             }
             ctx.setState({recipes: recipeList})
-        }).catch(err => {
-            ctx.setState({msg: err.message})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
     }
@@ -240,16 +240,16 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             RecipeService.create(this.state.namespace, saveApp).then(app => {
                 ctx.setState({msg: "Application created"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
         else {
             AppService.update(this.state.namespace, this.state.app).then(app => {
                 ctx.setState({msg: "Application updated"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
-            }).catch(err => {
-                ctx.setState({msg: err.message})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }    
     }

@@ -223,13 +223,13 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
             RecipeService.list(this.props.match.params.nsid).then(recipes => {
                 ctx.setState({recipes: recipes})
             }).catch(error => {
-                ctx.setState({msg: error.message})
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         } else {
             RecipeService.get(this.props.match.params.nsid, this.props.match.params.recipeid).then(recipe => {
                 ctx.setState({recipe: recipe})
             }).catch(error => {
-                ctx.setState({msg: error.message})
+                ctx.setState({msg: error.response.data.message || error.message})
             })
         }
     }

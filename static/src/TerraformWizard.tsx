@@ -1,7 +1,6 @@
 import React from "react";
 
 import './TerraformWizard.css'
-import { callbackify } from "util";
 
 interface TerraformWizardProps {
     show:boolean

@@ -20,6 +20,21 @@ interface NameSpaceProps {
 }
 
 class NameSpaceService {
+
+    static create(ns: any): Promise<NameSpace> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.post(root + "/deploy/ns", {"name": ns})
+            .then(function (response) {
+                resolve(response.data.ns)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
     static list(): Promise<NameSpace[]> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, _) => {
@@ -38,8 +53,6 @@ class NameSpaceService {
                 resolve([])
             })
         })
-        
-
     }
 }
 
@@ -68,6 +81,7 @@ class NameSpaceCard extends React.Component<NameSpaceProps> {
 interface NamespaceState {
     namespaces: NameSpace[]
     msg: string
+    newns: string
 }
 
 export class NameSpaces extends React.Component<RouteComponentProps<{}>, NamespaceState> {
@@ -76,8 +90,11 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
         super(props);
         this.state = {
             namespaces: [],
-            msg: ""
+            msg: "",
+            newns: ""
         }
+        this.onNewNSChange = this.onNewNSChange.bind(this)
+        this.onNewNS = this.onNewNS.bind(this)
     }
 
     componentDidMount() {
@@ -86,6 +103,25 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
             NameSpaceService.list().then(ns => {
                 ctx.setState({namespaces: ns})
             })
+        }
+    }
+    
+    onNewNS() {
+        let ctx = this
+        NameSpaceService.create(this.state.newns).then( () => {
+            ctx.setState({newns: ""})
+            NameSpaceService.list().then(ns => {
+                ctx.setState({namespaces: ns})
+            })     
+        }).catch(err => {
+            ctx.setState({msg: err.response.data.message || err.message})
+        })
+
+    }
+
+    onNewNSChange(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            this.setState({newns: event.currentTarget.value})
         }
     }
 
@@ -99,12 +135,25 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
                 </ol>
                 </nav>
                 </div>
-            
-                    {this.state.namespaces.map((namespace, index) => {
-                        return (<div className="col-sm-3" key={namespace.name}><NameSpaceCard ns={namespace} key={namespace.name}/></div>)
-                    }
-                    )}
-                    {Auth.user != null && <div className="col-sm-3"><button className="btn btn-primary">Create new</button></div>}
+                <div className="col-sm-12">
+                {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+                </div>            
+                {this.state.namespaces.map((namespace, index) => {
+                    return (<div className="col-sm-3" key={namespace.name}><NameSpaceCard ns={namespace} key={namespace.name}/></div>)
+                })}
+                {Auth.user != null &&
+                <div className="col-sm-3">
+                    <div className="card">
+                        <div className="card-header">Create new</div>
+                        <div className="card-body">
+                            <input className="form-control" value={this.state.newns} onChange={this.onNewNSChange}/>
+                            <button className="btn btn-primary" onClick={this.onNewNS}>Create new</button>
+                        </div>
+                    </div>
+                </div>}
+                <div className="col-sm-12">
+                {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+                </div>  
             </div>
         )
     }

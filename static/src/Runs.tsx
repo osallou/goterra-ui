@@ -14,7 +14,23 @@ interface RunsProps {
 
 }
 
-class RunService {
+export class RunService {
+
+    static run(nsid: string, app:string, run:any): Promise<any[]> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, _) => {
+            axios.post(root + "/deploy/ns/" + nsid + "/run/" + app, run)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.run)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                resolve([])
+            })
+        })
+    }
     static list(): Promise<any[]> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, _) => {
@@ -198,8 +214,8 @@ interface RunCardState {
         let ctx = this
         RunService.stop(this.props.run.namespace, this.props.run.id).then(res => {
             ctx.setState({msg: "Stop request sent"})
-        }).catch(err => {
-            ctx.setState({msg: err.message})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
         })
     }
 
@@ -224,7 +240,7 @@ interface RunCardState {
             }
             ctx.setState({endpoints: ns_endpoints})
         }).catch(error => {
-            ctx.setState({msg: error.message})
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
         if(this.props.run.deployment !== undefined && this.props.run.deployment !== ""){
