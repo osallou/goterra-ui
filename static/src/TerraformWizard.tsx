@@ -1,5 +1,7 @@
 import React from "react";
 
+import './TerraformWizard.css'
+import { callbackify } from "util";
 
 interface TerraformWizardProps {
     show:boolean
@@ -156,6 +158,7 @@ export class TerraformWizard extends React.Component<TerraformWizardProps, Terra
         return (
             <div className={`modal ${this.props.show ? 'show' : ''}`} style={{
                 display: `${this.props.show ? 'block' : 'none'}`,
+                overflow: 'scroll',  height: "500px",
             }} role="dialog">
                 <div className="modal-dialog modal-lg" role="document"  aria-hidden="true">
                 <div className="modal-content">
@@ -177,7 +180,7 @@ export class TerraformWizard extends React.Component<TerraformWizardProps, Terra
                                 <div className="card-body"></div>
                                     <form className="form form-inline" onSubmit={e => { e.preventDefault(); }}>
                                         <div className="control-group">
-                                            <label htmlFor="count">Ephemeral storage?</label>
+                                            <label htmlFor="count">Number of instance (if 0, user will select it)</label>
                                             <input className="form-control" name="count" type="number" min="0" value={model.count} onChange={this.onChangeCount(model.name)}/>
                                         </div>
                                         <div className="control-group">
