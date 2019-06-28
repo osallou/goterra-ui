@@ -137,7 +137,7 @@ class RecipeCard extends React.Component<RecipeCardProps> {
                     { this.props.recipe.public ==true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.recipe.public ==false && <FontAwesomeIcon icon="lock"/>}
 
-                    <form>
+                    <form onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
                             <label htmlFor="name">Id</label>
                             <input className="form-control" name="name" readOnly value={this.props.recipe.id}/>

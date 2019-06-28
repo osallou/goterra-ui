@@ -236,7 +236,7 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
             <div className="card">
                 <div className="card-body">
                     {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
-                    <form className="form">
+                    <form className="form" onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
                         <label htmlFor="type">Type</label>
                         <select className="form-control" name="type" value={this.state.endpoint.kind} onChange={this.onChangeType}>

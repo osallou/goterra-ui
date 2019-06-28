@@ -10,6 +10,7 @@ import { string } from "prop-types";
 import {RecipeService} from '../Recipe'
 import {NameSpaceService} from '../Namespace'
 import {AppService} from '../Apps'
+import {TerraformWizard} from '../TerraformWizard'
 
 const CloudTypes:string[] = ["openstack"]
 
@@ -30,6 +31,7 @@ interface EditAppState {
     template: string
     baseImages: any[]
     recipes: any[]
+    fireModal: boolean
 }
 
 
@@ -45,6 +47,7 @@ interface App {
     image:string
     ts:number
     prev:string
+    model: any[]
 }
 
 export class EditApp extends React.Component<RouteComponentProps<MatchParams>, EditAppState> {
@@ -54,6 +57,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         super(props);
 
         this.state = {
+            fireModal: false,
             app: {
                 id: "",
                 name: "",
@@ -64,7 +68,8 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 inputs: {},
                 image: "",
                 ts: 0,
-                prev: ""
+                prev: "",
+                model: []
             },
             inputName: "",
             inputLabel: "",
@@ -87,6 +92,9 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         this.onTrashTemplate = this.onTrashTemplate.bind(this)
         this.onTemplateTypeChange = this.onTemplateTypeChange.bind(this)
         this.saveRecipe = this.saveRecipe.bind(this)
+        this.fireModal = this.fireModal.bind(this)
+        this.cancelModal = this.cancelModal.bind(this)
+        this.generateTemplates = this.generateTemplates.bind(this)
     }
 
     componentDidMount() {
@@ -113,11 +121,18 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         })
 
     }
+
+    fireModal() {
+        this.setState({fireModal: true})
+    }
+    cancelModal() {
+        this.setState({fireModal: false})
+    }
     
     onTemplateTypeChange(event:React.FormEvent<HTMLSelectElement>) {
         if (event.currentTarget.value != null) {
             // assert non null as we test before
-            this.setState({template: event.currentTarget.nodeValue!})
+            this.setState({template: event.currentTarget.value!})
         }
     }
 
@@ -215,6 +230,12 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         }
     }
 
+    generateTemplates(model: any[]) {
+        let app = {...this.state.app}
+        app.model = model
+        this.setState({fireModal: false, app: app})
+    }
+
     saveRecipe() {        
         let ctx = this
 
@@ -241,10 +262,14 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
     render() {
 
         return (
+            <div>
+                {this.state.fireModal && 
+                <TerraformWizard model={this.state.app.model} show={this.state.fireModal} onGenerate={this.generateTemplates} onClose={this.cancelModal}/>
+                }
             <div className="card">
                 <div className="card-body">
                     {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
-                    <form className="form">
+                    <form className="form" onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
                             <label htmlFor="id">ID</label>
                             <input className="form-control" name="id" readOnly value={this.state.app.id}/>
@@ -295,6 +320,9 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                             </div>
                         ))}
                         <h4>Templates</h4>
+                        {this.state.app.model.length > 0 && <div className="alert alert-warning">
+                            A model is already defined, templates will be generated from model
+                        </div>}
                         <div className="form-group row">
                                 <select className="form-control" name="newtpl" value={this.state.template} onChange={this.onTemplateTypeChange}>
                                     { CloudTypes.map((cloud) => (
@@ -302,6 +330,8 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                                     ))}
                                 </select>
                                 <button type="button" className="btn btn-primary" onClick={this.onAddTemplate}>Add</button>
+                                <button type="button" className="btn btn-primary" onClick={this.fireModal}>Wizard</button>
+
                         </div>
                         { Object.keys(this.state.app.templates).map((key) => (
                             <div className="form-group row" key={key}>
@@ -317,6 +347,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                     </form>
                 </div>
                 
+            </div>
             </div>
         )
     }

@@ -136,7 +136,7 @@ class AppCard extends React.Component<AppCardProps> {
                     { this.props.app.public ==true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.app.public ==false && <FontAwesomeIcon icon="lock"/>}
 
-                    <form>
+                    <form onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
                             <label htmlFor="name">Id</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.id}/>

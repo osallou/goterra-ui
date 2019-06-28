@@ -259,7 +259,7 @@ interface RunCardState {
             <div className="card">
                <div className="card-header">{this.props.run.id}</div>
                 <div className="card-body">
-                <form>
+                <form onSubmit={e => { e.preventDefault(); }}>
                         { this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>

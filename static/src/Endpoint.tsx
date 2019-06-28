@@ -201,7 +201,7 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
                             </div>
                         </div>
                     </div>
-                    <form className="form">
+                    <form className="form" onSubmit={e => { e.preventDefault(); }}>
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
                             <input className="form-control" name="name" readOnly value={this.props.endpoint.name}/>
