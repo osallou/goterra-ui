@@ -14,6 +14,8 @@ import {AppsSpace} from './Apps'
 import {Runs} from './Runs'
 import {EditEndpoint} from './edit/EditEndpoint'
 import {EditRecipe} from './edit/EditRecipe'
+import {EditTemplate} from './edit/EditTemplate'
+
 import {EditApp} from './edit/EditApp'
 import {Api} from './Api'
 import {RunApp} from './Run'
@@ -181,6 +183,8 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/edit/endpoint' component={EditEndpoint}/>
         <Route exact path='/ns/:nsid/edit/recipe/:recipeid' component={EditRecipe}/>
         <Route exact path='/ns/:nsid/edit/recipe' component={EditRecipe}/>
+        <Route exact path='/ns/:nsid/edit/template/:templateid' component={EditTemplate}/>
+        <Route exact path='/ns/:nsid/edit/template' component={EditTemplate}/>
         <Route exact path='/ns/:nsid/edit/app/:appid' component={EditApp}/>
         <Route exact path='/ns/:nsid/edit/app' component={EditApp}/>
         <Route exact path='/run' component={Runs}/>

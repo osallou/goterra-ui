@@ -197,10 +197,10 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             ))}
                         </select>
                     </div>
-                    {this.state.appInputs && Object.keys(this.state.appInputs.application).length > 0 && <h4>Application inputs</h4>}
-                    {this.state.appInputs && Object.keys(this.state.appInputs.application).map((input) => (
+                    {this.state.appInputs && Object.keys(this.state.appInputs.template).length > 0 && <h4>Application inputs</h4>}
+                    {this.state.appInputs && Object.keys(this.state.appInputs.template).map((input) => (
                         <div className="form-group row" key={input}>
-                            <label htmlFor={input}>{this.state.appInputs.application[input]}</label>
+                            <label htmlFor={input}>{this.state.appInputs.template[input]}</label>
                             <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
                         </div>
                     ))}

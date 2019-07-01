@@ -4,6 +4,8 @@ import { RouteComponentProps } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {RecipeService} from '../Recipe'
+import {TemplateService} from '../Template'
+
 import {AppService} from '../Apps'
 import {TerraformWizard} from '../TerraformWizard'
 
@@ -26,6 +28,10 @@ interface EditAppState {
     template: string
     baseImages: any[]
     recipes: any[]
+    recipesMap: any
+    templates: any[]
+    selectedTemplate: string
+    selectedRecipe: string
     fireModal: boolean
 }
 
@@ -43,6 +49,8 @@ interface App {
     ts:number
     prev:string
     model: any[]
+    template: string
+    recipes: string[]
 }
 
 export class EditApp extends React.Component<RouteComponentProps<MatchParams>, EditAppState> {
@@ -64,7 +72,9 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 image: "",
                 ts: 0,
                 prev: "",
-                model: []
+                model: [],
+                template: "",
+                recipes: []
             },
             inputName: "",
             inputLabel: "",
@@ -72,6 +82,10 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             tags: "",
             baseImages: [],
             recipes: [],
+            recipesMap: {},
+            templates: [],
+            selectedTemplate: "",
+            selectedRecipe: "",
 
             namespace: this.props.match.params.nsid,
             msg: ""
@@ -79,17 +93,21 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
 
         this.onChangeInput = this.onChangeInput.bind(this)
         this.onAddInput = this.onAddInput.bind(this)
-        this.onChangeRecipe = this.onChangeRecipe.bind(this)
+        this.onChangeApp = this.onChangeApp.bind(this)
         this.onChangePublic = this.onChangePublic.bind(this)
         this.trashInput = this.trashInput.bind(this)
-        this.onChangeTemplate = this.onChangeTemplate.bind(this)
         this.onAddTemplate = this.onAddTemplate.bind(this)
-        this.onTrashTemplate = this.onTrashTemplate.bind(this)
         this.onTemplateTypeChange = this.onTemplateTypeChange.bind(this)
-        this.saveRecipe = this.saveRecipe.bind(this)
+        this.saveApp = this.saveApp.bind(this)
         this.fireModal = this.fireModal.bind(this)
         this.cancelModal = this.cancelModal.bind(this)
-        this.generateTemplates = this.generateTemplates.bind(this)
+        this.onSelectedTemplateChange = this.onSelectedTemplateChange.bind(this)
+
+
+        this.onChangeRecipe = this.onChangeRecipe.bind(this)
+        this.onAddRecipe = this.onAddRecipe.bind(this)
+        this.trashRecipe = this.trashRecipe.bind(this)
+
     }
 
     componentDidMount() {
@@ -105,16 +123,59 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
 
         RecipeService.list(this.props.match.params.nsid).then(recipes => {
             let recipeList:any[] = []
+            let recipesMap:any = {}
             
             for(let i=0;i<recipes.length; i++){
                 let recipe = recipes[i]
                 recipeList.push({name: recipe.name, id: recipe.id})
+                recipesMap[recipe.id]  = recipe.name
             }
-            ctx.setState({recipes: recipeList})
+            ctx.setState({recipes: recipeList, recipesMap: recipesMap})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
 
+        TemplateService.list(this.props.match.params.nsid).then(templates => {
+            let templateList:any[] = []
+            
+            for(let i=0;i<templates.length; i++){
+                let template = templates[i]
+                templateList.push({name: template.name, id: template.id})
+            }
+            ctx.setState({templates: templateList})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+
+    }
+
+
+    onAddRecipe() {
+        let app = {...this.state.app}
+        if(this.state.app.recipes.indexOf(this.state.selectedRecipe)>=0) {
+            return
+        }
+        app.recipes.push(this.state.selectedRecipe)
+        this.setState({app: app})
+    }
+
+    trashRecipe(input:string) {
+        let ctx = this
+        return function() {
+            let app = {...ctx.state.app}
+            let index = app.recipes.indexOf(input)
+            if (index >= 0) {
+                app.recipes.splice(index, 1)
+            }
+            ctx.setState({app: app})
+        }
+    }
+
+    onChangeRecipe(event:React.FormEvent<HTMLSelectElement>) {
+        if (event.currentTarget.value != null) {
+            // assert non null as we test before
+            this.setState({selectedRecipe: event.currentTarget.value!})
+        }
     }
 
     fireModal() {
@@ -128,6 +189,15 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         if (event.currentTarget.value != null) {
             // assert non null as we test before
             this.setState({template: event.currentTarget.value!})
+        }
+    }
+
+    onSelectedTemplateChange(event:React.FormEvent<HTMLSelectElement>) {
+        if (event.currentTarget.value != null) {
+            // assert non null as we test before
+            let app = {...this.state.app}
+            app.template = event.currentTarget.value
+            this.setState({selectedTemplate: event.currentTarget.value, app: app})
         }
     }
 
@@ -159,18 +229,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         this.setState({app: app})
     }
 
-    onChangeTemplate(key:string) {
-        let ctx = this
-        return function(event:React.FormEvent<HTMLInputElement|HTMLTextAreaElement>) {
-            if (event.currentTarget.value != null) {
-                let app = {...ctx.state.app}
-                app.templates[key] = event.currentTarget.value
-                ctx.setState({app: app})
-            }
-        }
-    }
-
-    onChangeRecipe(event:React.FormEvent<HTMLInputElement|HTMLTextAreaElement>) {
+    onChangeApp(event:React.FormEvent<HTMLInputElement|HTMLTextAreaElement>) {
         if (event.currentTarget.value != null) {
             let app = {...this.state.app}
             switch(event.currentTarget.name) {
@@ -216,28 +275,19 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         }
     }
 
-    onTrashTemplate(template:string) {
+
+    saveApp() {        
         let ctx = this
-        return function() {
-            let app = {...ctx.state.app}
-            delete app.templates[template]
-            ctx.setState({app: app})
+
+        if(this.state.app.template === "") {
+            ctx.setState({msg: "no template selected"})
+            return
         }
-    }
-
-    generateTemplates(model: any[]) {
-        let app = {...this.state.app}
-        app.model = model
-        this.setState({fireModal: false, app: app})
-    }
-
-    saveRecipe() {        
-        let ctx = this
 
         if(this.state.app.id === "") {
             let saveApp = { ...this.state.app}
             delete saveApp.id
-            RecipeService.create(this.state.namespace, saveApp).then(app => {
+            AppService.create(this.state.namespace, saveApp).then(app => {
                 ctx.setState({msg: "Application created"})
                 ctx.props.history.push(`/ns/${this.state.namespace}`)
             }).catch(error => {
@@ -258,9 +308,6 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
 
         return (
             <div>
-                {this.state.fireModal && 
-                <TerraformWizard model={this.state.app.model} show={this.state.fireModal} onGenerate={this.generateTemplates} onClose={this.cancelModal}/>
-                }
             <div className="card">
                 <div className="card-body">
                     {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
@@ -275,11 +322,11 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
-                            <input className="form-control" name="name" value={this.state.app.name} onChange={this.onChangeRecipe}/>
+                            <input className="form-control" name="name" value={this.state.app.name} onChange={this.onChangeApp}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="description">Description</label>
-                            <textarea rows={4} className="form-control" name="description" value={this.state.app.description} onChange={this.onChangeRecipe}/>
+                            <textarea rows={4} className="form-control" name="description" value={this.state.app.description} onChange={this.onChangeApp}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="image">Used image</label>
@@ -314,29 +361,39 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                                 <input className="form-control" name={key} readOnly value={this.state.app.inputs[key]}/>
                             </div>
                         ))}
-                        <h4>Templates</h4>
-                        {this.state.app.model.length > 0 && <div className="alert alert-warning">
-                            A model is already defined, templates will be generated from model
-                        </div>}
-                        <div className="form-group row">
-                                <select className="form-control" name="newtpl" value={this.state.template} onChange={this.onTemplateTypeChange}>
-                                    { CloudTypes.map((cloud) => (
-                                        <option key={cloud} value={cloud}>{cloud}</option>
-                                    ))}
-                                </select>
-                                <button type="button" className="btn btn-primary" onClick={this.onAddTemplate}>Add</button>
-                                <button type="button" className="btn btn-primary" onClick={this.fireModal}>Wizard</button>
 
+                        <h4>Recipes</h4>
+
+                        <div className="form-group row">
+                            <select className="form-control" value={this.state.selectedRecipe} onChange={this.onChangeRecipe}>
+                                <option value="">Select a recipe</option>
+                                {this.state.recipes.map((recipe) => (
+                                    <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
+                                ))}
+                            </select>
+                            <button type="button" className="btn btn-primary" onClick={this.onAddRecipe}>Add</button>
                         </div>
-                        { Object.keys(this.state.app.templates).map((key) => (
-                            <div className="form-group row" key={key}>
-                                <label htmlFor={"tpl" + key}>{key} <span onClick={this.onTrashTemplate(key)}><FontAwesomeIcon icon="trash-alt"/></span></label>
-                                <textarea rows={20} className="form-control" name={"tpl" + key} value={this.state.app.templates[key]} onChange={this.onChangeTemplate(key)}/>
-                            </div>
+                        {this.state.app.recipes.map((recipe) => (
+                            <div className="form-group row" key={recipe}>
+                            <label htmlFor="name">{recipe}  <span onClick={this.trashRecipe(recipe)}><FontAwesomeIcon icon="trash-alt"/></span></label>
+                            <input className="form-control" name={recipe} readOnly value={this.state.recipesMap[recipe]}/>
+                        </div>                            
                         ))}
+
+
+                        <h4>Templates</h4>
+                        
+                        <div className="form-group row">
+                            <select className="form-control" value={this.state.selectedTemplate} onChange={this.onSelectedTemplateChange}>
+                                <option value="">Select a template</option>
+                                {this.state.templates.map((template) => (
+                                    <option key={template.id} value={template.id}>{template.name}</option>
+                                ))}
+                            </select>
+                        </div>
  
                         <div className="form-group row">
-                            <button type="button" className="btn btn-primary" onClick={this.saveRecipe}>SAVE</button>
+                            <button type="button" className="btn btn-primary" onClick={this.saveApp}>SAVE</button>
                         </div>
                         {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                     </form>

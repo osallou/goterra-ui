@@ -18,6 +18,7 @@ interface NamespaceState {
     ns: any
     endpoints: any[]
     recipes: any[]
+    templates: any[]
     apps: any[]
 }
 
@@ -61,6 +62,22 @@ export class NameSpaceService {
             .then(function (response) {
                 // handle success
                 resolve(response.data.recipes)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static templates(nsid:string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/ns/" + nsid + "/template")
+            .then(function (response) {
+                // handle success
+                resolve(response.data.templates)
             })
             .catch(function (error) {
                 // handle error
@@ -126,6 +143,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
             msg: "",
             ns: {},
             endpoints: [],
+            templates: [],
             recipes: [],
             apps: []
         }
@@ -147,6 +165,12 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
 
         NameSpaceService.recipes(this.props.match.params.nsid).then(recipes => {
             ctx.setState({recipes: recipes})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+
+        NameSpaceService.templates(this.props.match.params.nsid).then(templates => {
+            ctx.setState({templates: templates})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
@@ -208,6 +232,15 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         <div className="card-body">
                         {this.state.recipes && <div>{this.state.recipes.length}</div>}
                         <Link to={`/ns/${this.state.ns["_id"]}/edit/recipe`}><button type="button" className="btn btn-primary">Create</button></Link>
+
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-header">Templates <Link to={`/ns/${this.state.ns["_id"]}/template`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
+                        <div className="card-body">
+                        {this.state.templates && <div>{this.state.templates.length}</div>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/template`}><button type="button" className="btn btn-primary">Create</button></Link>
 
                         </div>
                     </div>
