@@ -10,6 +10,7 @@ import {NameSpaces} from './Namespaces'
 import {NameSpace} from './Namespace'
 import {EndpointSpace} from './Endpoint'
 import {RecipeSpace} from './Recipe'
+import {TemplateSpace} from './Template'
 import {AppsSpace} from './Apps'
 import {Runs} from './Runs'
 import {EditEndpoint} from './edit/EditEndpoint'
@@ -177,6 +178,8 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/ns/:nsid/endpoint/:endpointid' component={EndpointSpace}/>
         <Route exact path='/ns/:nsid/recipe' component={RecipeSpace}/>
         <Route exact path='/ns/:nsid/recipe/:recipeid' component={RecipeSpace}/>
+        <Route exact path='/ns/:nsid/template' component={TemplateSpace}/>
+        <Route exact path='/ns/:nsid/template/:templateid' component={TemplateSpace}/>
         <Route exact path='/ns/:nsid/app' component={AppsSpace}/>
         <Route exact path='/ns/:nsid/app/:appid' component={AppsSpace}/>
         <Route exact path='/ns/:nsid/edit/endpoint/:endpointid' component={EditEndpoint}/>

@@ -309,7 +309,7 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                             </div>
                         ))}
                         <h4>Templates</h4>
-                        {this.state.template.model.length > 0 && <div className="alert alert-warning">
+                        {this.state.template.model && this.state.template.model.length > 0 && <div className="alert alert-warning">
                             A model is already defined, templates will be generated from model
                         </div>}
                         <div className="form-group row">

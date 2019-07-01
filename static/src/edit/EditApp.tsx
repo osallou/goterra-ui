@@ -7,7 +7,6 @@ import {RecipeService} from '../Recipe'
 import {TemplateService} from '../Template'
 
 import {AppService} from '../Apps'
-import {TerraformWizard} from '../TerraformWizard'
 
 const CloudTypes:string[] = ["openstack"]
 
@@ -33,6 +32,9 @@ interface EditAppState {
     selectedTemplate: string
     selectedRecipe: string
     fireModal: boolean
+
+    publicRecipes: any[]
+    publicTemplates: any[]
 }
 
 
@@ -87,6 +89,9 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             selectedTemplate: "",
             selectedRecipe: "",
 
+            publicRecipes: [],
+            publicTemplates: [],
+
             namespace: this.props.match.params.nsid,
             msg: ""
         }
@@ -113,13 +118,26 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
     componentDidMount() {
         let ctx = this
         // If endpointid, get it
+        
         if (this.props.match.params.appid !== undefined && this.props.match.params.appid !== "") {
             AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
-                ctx.setState({app: app})
+                ctx.setState({app: app, selectedTemplate: app.template})
             }).catch(error => {
                 ctx.setState({msg: error.response.data.message || error.message})
             })
         }
+
+        AppService.public_recipes(true).then(recipes => {
+            ctx.setState({publicRecipes: recipes})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+
+        AppService.public_templates(true).then(templates => {
+            ctx.setState({publicTemplates: templates})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
 
         RecipeService.list(this.props.match.params.nsid).then(recipes => {
             let recipeList:any[] = []
@@ -346,30 +364,22 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                                 <input readOnly className="form-control" name="prev" value={this.state.app.prev}/>
                             </div>  
                         }
-        
-                        <h4>Inputs</h4>
-                        <div className="form-group row">
-                            <label htmlFor="inputName">Variable name</label>
-                            <input className="form-control" name="inputName" value={this.state.inputName} onChange={this.onChangeInput}/>
-                            <label htmlFor="inputLabel">Label</label>
-                            <input className="form-control" name="inputLabel" value={this.state.inputLabel} onChange={this.onChangeInput}/>
-                            <button type="button" className="btn btn-primary" onClick={this.onAddInput}>Add</button>
-                        </div>
-                        {  Object.keys(this.state.app.inputs).map((key:string) => (
-                            <div className="form-group row" key={key}>
-                                <label htmlFor="name">{key}  <span onClick={this.trashInput(key)}><FontAwesomeIcon icon="trash-alt"/></span></label>
-                                <input className="form-control" name={key} readOnly value={this.state.app.inputs[key]}/>
-                            </div>
-                        ))}
 
                         <h4>Recipes</h4>
 
                         <div className="form-group row">
                             <select className="form-control" value={this.state.selectedRecipe} onChange={this.onChangeRecipe}>
                                 <option value="">Select a recipe</option>
+                                <optgroup label="Private">
                                 {this.state.recipes.map((recipe) => (
                                     <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
                                 ))}
+                                </optgroup>
+                                <optgroup label="Public">
+                                {this.state.publicRecipes.map((recipe) => (
+                                    <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
+                                ))}      
+                                </optgroup>
                             </select>
                             <button type="button" className="btn btn-primary" onClick={this.onAddRecipe}>Add</button>
                         </div>
@@ -386,9 +396,16 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                         <div className="form-group row">
                             <select className="form-control" value={this.state.selectedTemplate} onChange={this.onSelectedTemplateChange}>
                                 <option value="">Select a template</option>
+                                <optgroup label="Private">
                                 {this.state.templates.map((template) => (
                                     <option key={template.id} value={template.id}>{template.name}</option>
                                 ))}
+                                </optgroup>
+                                <optgroup label="Public">
+                                {this.state.publicTemplates.map((template) => (
+                                    <option key={template.id} value={template.id}>{template.name}</option>
+                                ))}  
+                                </optgroup>
                             </select>
                         </div>
  

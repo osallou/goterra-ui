@@ -6,7 +6,7 @@ import axios from "axios"
 // import {Auth} from './Auth/Auth'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
+import {AppService} from './Apps'
 
 export class RecipeService {
     static get(nsid:string, recipe:string): Promise<any> {
@@ -86,7 +86,8 @@ interface RecipeState {
     msg: string
     ns: any
     recipe: any | null
-    recipes: any[]
+    recipes: any[],
+    publicRecipes: any[]
 }
 
 interface RecipeSmallCardProps {
@@ -132,7 +133,7 @@ class RecipeCard extends React.Component<RecipeCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.recipe.name}   <Link to={`/ns/${this.props.ns}/edit/recipe/${this.props.recipe.id}`}><button type="button" className="btn btn-primary">Edit</button></Link>
+               <div className="card-header">{this.props.recipe.name}   { this.props.ns === this.props.recipe.namespace && <Link to={`/ns/${this.props.ns}/edit/recipe/${this.props.recipe.id}`}><button type="button" className="btn btn-primary">Edit</button></Link> }
 </div>
                 <div className="card-body">
                     {this.props.recipe.description}
@@ -204,7 +205,8 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
             msg: "",
             ns: this.props.match.params.nsid,
             recipe: null,
-            recipes: []
+            recipes: [],
+            publicRecipes: []
         }
 
         this.selectRecipe = this.selectRecipe.bind(this)
@@ -232,6 +234,12 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
                 ctx.setState({msg: error.response.data.message || error.message})
             })
         }
+
+        AppService.public_recipes(true).then(recipes => {
+            ctx.setState({publicRecipes: recipes})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
     }
 
     render() {
@@ -250,6 +258,13 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
                 <div className="col-sm-6">
                     <div className="row">
                     {this.state.recipes.map((recipe:any, index: number) => (
+                        <div className="col-sm-6" key={recipe.id}><RecipeSmallCard onPress={this.selectRecipe} recipe={recipe} ns={this.state.ns}/></div>
+                    ))}
+                    </div>
+
+                    <div className="row">
+                    <div className="col-sm-6"><h4>Public recipes</h4></div>
+                    {this.state.publicRecipes.map((recipe:any, index: number) => (
                         <div className="col-sm-6" key={recipe.id}><RecipeSmallCard onPress={this.selectRecipe} recipe={recipe} ns={this.state.ns}/></div>
                     ))}
                     </div>

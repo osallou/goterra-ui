@@ -9,6 +9,38 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
  export class AppService {
 
+    static public_recipes(light_mode: boolean): Promise<any[]> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/recipes", {
+                params: { light: light_mode ? "1": "0"}
+            })
+            .then(function (response) {
+                resolve(response.data.recipes)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static public_templates(light_mode: boolean): Promise<any[]> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/templates", {
+                params: { light: light_mode ? "1": "0"}
+            })
+            .then(function (response) {
+                resolve(response.data.templates)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
     static getInputs(nsid:string, app:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {

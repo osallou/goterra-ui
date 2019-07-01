@@ -7,11 +7,13 @@ import axios from "axios"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import {AppService} from './Apps'
 
 export class TemplateService {
     static get(nsid:string, template:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
+            console.log("get template", template)
             axios.get(root + "/deploy/ns/" + nsid + "/template/" + template)
             .then(function (response) {
                 // handle success
@@ -87,6 +89,7 @@ interface TemplateState {
     ns: any
     template: any | null
     templates: any[]
+    publicTemplates: any[]
 }
 
 interface TemplateSmallCardProps {
@@ -132,7 +135,7 @@ class TemplateCard extends React.Component<TemplateCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.template.name}   <Link to={`/ns/${this.props.ns}/edit/template/${this.props.template.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
+               <div className="card-header">{this.props.template.name}  { this.props.ns === this.props.template.namespace &&  <Link to={`/ns/${this.props.ns}/edit/template/${this.props.template.id}`}><button type="button" className="btn btn-primary">Edit</button></Link>} </div>
                 <div className="card-body">
                     {this.props.template.description}
                     { this.props.template.public === true && <FontAwesomeIcon icon="lock-open"/>}
@@ -174,6 +177,7 @@ class TemplateCard extends React.Component<TemplateCardProps> {
                                 <textarea rows={20} className="form-control" name={"tpl" + template} readOnly value={this.props.template.data[template]}/>
                             </div>                            
                         ))}
+                        
                         <h5>Expected inputs</h5>
                         {this.props.template.inputs && Object.keys(this.props.template.inputs).map((key, _) => (
                         <div className="form-group row" key={key}>
@@ -198,7 +202,8 @@ export class TemplateSpace extends React.Component<RouteComponentProps<MatchPara
             msg: "",
             ns: this.props.match.params.nsid,
             template: null,
-            templates: []
+            templates: [],
+            publicTemplates: []
         }
 
         this.selectTemplate = this.selectTemplate.bind(this)
@@ -226,6 +231,12 @@ export class TemplateSpace extends React.Component<RouteComponentProps<MatchPara
                 ctx.setState({msg: error.response.data.message || error.message})
             })
         }
+
+        AppService.public_recipes(true).then(templates => {
+            ctx.setState({publicTemplates: templates})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
     }
 
     render() {
@@ -247,6 +258,14 @@ export class TemplateSpace extends React.Component<RouteComponentProps<MatchPara
                         <div className="col-sm-6" key={template.id}><TemplateSmallCard onPress={this.selectTemplate} template={template} ns={this.state.ns}/></div>
                     ))}
                     </div>
+                    <div className="row">
+                    <div className="col-sm-6"><h4>Public templates</h4></div>
+                    {this.state.publicTemplates.map((template:any, index: number) => (
+                        <div className="col-sm-6" key={template.id}><TemplateSmallCard onPress={this.selectTemplate} template={template} ns={this.state.ns}/></div>
+                    ))}
+                    </div>
+
+
                 </div>
                 <div className="col-sm-6">
                     { this.state.template && <TemplateCard template={this.state.template} ns={this.state.ns}/> }
