@@ -230,11 +230,11 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 <form className="form"  onSubmit={e => { e.preventDefault(); }}>
                     <div className="form-group row">
                             <label htmlFor="name">Name</label>
-                            <input className="form-control" name="name" value={this.state.run.name} onChange={this.onChangeInfo()}/>
+                            <input className="form-control" name="name" value={this.state.run.name} onChange={this.onChangeInfo}/>
                     </div>
                     <div className="form-group row">
                             <label htmlFor="description">Description</label>
-                            <input className="form-control" name="description" value={this.state.run.description} onChange={this.onChangeInfo()}/>
+                            <input className="form-control" name="description" value={this.state.run.description} onChange={this.onChangeInfo}/>
                     </div>
                     <div className="form-group row">
                         <label htmlFor="endpoint">Endpoint</label>
