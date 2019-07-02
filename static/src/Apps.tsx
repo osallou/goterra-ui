@@ -233,20 +233,10 @@ class AppCard extends React.Component<AppCardProps> {
                             <label htmlFor="name">Created</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.ts}/>
                         </div>
-                        <h5>Templates</h5>
-                        {this.props.app.templates && Object.keys(this.props.app.templates).map((template, _) => (
-                            <div className="form-group row" key={template}>
-                                <label htmlFor={"tpl"+template}>{template}</label>
-                                <textarea rows={20} className="form-control" name={"tpl" + template} readOnly value={this.props.app.templates[template]}/>
-                            </div>                            
-                        ))}
-                        <h5>Expected inputs</h5>
-                        {this.props.app.inputs && Object.keys(this.props.app.inputs).map((key, _) => (
-                        <div className="form-group row" key={key}>
-                            <label htmlFor={"input"+key}>{key}</label>
-                            <input className="form-control" name={"input"+key} readOnly value={this.props.app.inputs[key]}/>
+                        <div className="form-group row">
+                            <label htmlFor="name">Template</label>
+                            <input className="form-control" name="name" readOnly value={this.props.app.template}/>
                         </div>
-                        ))}
                     </form>
                 </div>
                 

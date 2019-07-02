@@ -120,7 +120,13 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         if (event.currentTarget.value != null && event.currentTarget.value !== "") {
             let run = {...this.state.run}
             run.endpoint = event.currentTarget.value
-            EndpointService.hasSecret(this.props.match.params.nsid, run.endpoint).then(res => {
+            let endpointNS = this.props.match.params.nsid
+            for(let endpoint of this.state.endpoints) {
+                if (endpoint.id === run.endpoint) {
+                    endpointNS = endpoint.namespace
+                }
+            }
+            EndpointService.hasSecret(endpointNS, run.endpoint).then(res => {
                 ctx.setState({hasSecret: true})
             }).catch(err => {
                 ctx.setState({hasSecret: false})
@@ -144,18 +150,16 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         let ctx = this
 
         AppService.getInputs(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
-            console.log("appinputs", app)
             ctx.setState({appInputs: app})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
 
         AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
-            console.log("app", app)
             ctx.setState({app: app})
             NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
                 let endpointList:any[] = []
-                let availableTemplates = []
+                let availableTemplates:any[] = []
                 let controlTemplates = false
                 if (app.model === undefined || app.model === null || app.model.length === 0) {
                     controlTemplates = true
@@ -171,8 +175,19 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     }
                     endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind})
                 }
-                console.log("endpoints", endpointList)
-                ctx.setState({endpoints: endpointList})
+                AppService.public_endpoints().then(endpoints => {
+                    for(let endpoint of endpoints) {
+                        if(controlTemplates && availableTemplates.indexOf(endpoint.kind) < 0) {
+                            console.log("no template available for this kind of endpoint", endpoint.kind)
+                            continue
+                        }
+                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind})
+                    }
+                    ctx.setState({endpoints: endpointList})
+                }).catch(error => {
+                    ctx.setState({msg: error.response.data.message || error.message})
+                })
+
             }).catch(error => {
                 ctx.setState({msg: error.response.data.message || error.message})
             })

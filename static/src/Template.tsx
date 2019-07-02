@@ -242,7 +242,7 @@ export class TemplateSpace extends React.Component<RouteComponentProps<MatchPara
             })
         }
 
-        AppService.public_recipes(true).then(templates => {
+        AppService.public_templates(true).then(templates => {
             ctx.setState({publicTemplates: templates})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})

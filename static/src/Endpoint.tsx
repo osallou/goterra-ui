@@ -147,7 +147,7 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
         if (this.props.endpoint.id === undefined) {return}
 
         if(prevProps.endpoint.id !== this.props.endpoint.id) {
-            EndpointService.hasSecret(this.props.ns, this.props.endpoint.id).then(res => {
+            EndpointService.hasSecret(this.props.endpoint.namespace, this.props.endpoint.id).then(res => {
                 ctx.setState({secretMsg: "You already have some credentials for this endpoint"})
             }).catch(err => {
                 ctx.setState({secretMsg: "No credentials defined yet"})
@@ -172,7 +172,7 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
 
     setSecret(){
         let ctx = this
-        EndpointService.setSecret(this.props.ns, this.props.endpoint.id, this.state.name, this.state.password).then(res => {
+        EndpointService.setSecret(this.props.endpoint.namespace, this.props.endpoint.id, this.state.name, this.state.password).then(res => {
             ctx.setState({secretMsg: "Secret updated"})
         }).catch(error => {
             ctx.setState({secretMsg: error.response.data.message || error.message})
@@ -194,7 +194,7 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
                             </div>
                             <div className="form-group row">
                                 <label htmlFor="password">Password</label>
-                                <input className="form-control" name="password" value={this.state.password} onChange={this.updateSecret}/>
+                                <input className="form-control" type="password" name="password" value={this.state.password} onChange={this.updateSecret}/>
                             </div>
                             <div className="form-group row">
                                 <button type="button" className="btn btn-primary" onClick={this.setSecret}>Add credentials</button>
