@@ -132,7 +132,7 @@ class EndpointCard extends React.Component<EndpointProps> {
                     { this.props.endpoint.public === false && <FontAwesomeIcon icon="lock"/>}
                     </h6>
                     <p className="card-text">
-                    <Link to={`/ns/${this.props.ns}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
+                    <Link to={`/ns/${this.props.endpoint["namespace"]}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
                     </p>
                 </div>
             </div>
