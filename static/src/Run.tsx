@@ -262,14 +262,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     <h4>Endpoint inputs</h4>
                     {!this.state.hasSecret &&
                     <div>
-                    <div className="form-group row">
-                            <label htmlFor="user_name">User identifier</label>
-                            <input className="form-control" name="user_name" value={this.state.run.inputs["user_name"] || ""} onChange={this.onChange("user_name")}/>
-                    </div>
-                    <div className="form-group row">
-                            <label htmlFor="password">Password</label>
-                            <input type="password" className="form-control" name="password" value={this.state.run.inputs["password"] || ""} onChange={this.onChange("password")}/>
-                    </div>
+                    No secrets defined for this endpoint, please set one before
                     </div>
                     }
                     {this.state.hasSecret && <div>
@@ -284,7 +277,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                         </div>
                     ))}
                     
-                    <button type="button" className="btn btn-primary" onClick={this.onRun}>Run</button>
+                    {this.state.hasSecret && <button type="button" className="btn btn-primary" onClick={this.onRun}>Run</button>}
                     
                 </form>
                 </div>
