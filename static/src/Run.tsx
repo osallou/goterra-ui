@@ -83,6 +83,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         this.onEndpointChange = this.onEndpointChange.bind(this)
         this.onRun = this.onRun.bind(this)
         this.onChange = this.onChange.bind(this)
+        this.onChangeInfo = this.onChangeInfo.bind(this)
     }
 
     onRun() {
@@ -121,6 +122,25 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             }
         }
     }
+
+    onChangeInfo(event:React.FormEvent<HTMLInputElement>) {
+        let ctx =this
+        if (event.currentTarget.value != null && event.currentTarget.value !== "") {
+            let run = {...ctx.state.run}
+            switch(event.currentTarget.name) {
+                case "name": {
+                    run.name = event.currentTarget.value
+                    break
+                }
+                case "description": {
+                    run.description = event.currentTarget.value
+                    break
+                }
+            }
+            ctx.setState({run: run})
+        }
+    }      
+
 
     onEndpointChange(event:React.FormEvent<HTMLSelectElement>) {
         let ctx =this
@@ -208,6 +228,14 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 <div className="card-body">
                 {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                 <form className="form"  onSubmit={e => { e.preventDefault(); }}>
+                    <div className="form-group row">
+                            <label htmlFor="name">Name</label>
+                            <input className="form-control" name="name" value={this.state.run.name} onChange={this.onChangeInfo()}/>
+                    </div>
+                    <div className="form-group row">
+                            <label htmlFor="description">Description</label>
+                            <input className="form-control" name="description" value={this.state.run.description} onChange={this.onChangeInfo()}/>
+                    </div>
                     <div className="form-group row">
                         <label htmlFor="endpoint">Endpoint</label>
                         <select className="form-control" name="endpoint" value={this.state.endpoint} onChange={this.onEndpointChange}>
