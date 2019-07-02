@@ -41,6 +41,7 @@ interface Template {
     model: any[]
     data: any
     tags: string[]
+    version:string
 }
 
 export class EditTemplate extends React.Component<RouteComponentProps<MatchParams>, EditTemplateState> {
@@ -63,7 +64,8 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                 ts: 0,
                 prev: "",
                 model: [],
-                tags: []
+                tags: [],
+                version: ""
             },
             inputName: "",
             inputLabel: "",
@@ -273,6 +275,10 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                         <div className="form-group row">
                             <label htmlFor="description">Description</label>
                             <textarea rows={4} className="form-control" name="description" value={this.state.template.description} onChange={this.onChangeTemplateInfo}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="name">Version</label>
+                            <input className="form-control" name="name" readOnly value={this.state.template.version}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>

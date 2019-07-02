@@ -21,6 +21,20 @@ interface NameSpaceProps {
 
 class NameSpaceService {
 
+    static config() : Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/app/config")
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
     static create(ns: any): Promise<NameSpace> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -82,6 +96,7 @@ interface NamespaceState {
     namespaces: NameSpace[]
     msg: string
     newns: string
+    config: any
 }
 
 export class NameSpaces extends React.Component<RouteComponentProps<{}>, NamespaceState> {
@@ -91,7 +106,8 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
         this.state = {
             namespaces: [],
             msg: "",
-            newns: ""
+            newns: "",
+            config: {}
         }
         this.onNewNSChange = this.onNewNSChange.bind(this)
         this.onNewNS = this.onNewNS.bind(this)
@@ -104,6 +120,11 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
                 ctx.setState({namespaces: ns})
             })
         }
+        NameSpaceService.config().then(cfg => {
+            ctx.setState({config: cfg})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
     }
     
     onNewNS() {
@@ -113,8 +134,8 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
             NameSpaceService.list().then(ns => {
                 ctx.setState({namespaces: ns})
             })     
-        }).catch(err => {
-            ctx.setState({msg: err.response.data.message || err.message})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
         })
 
     }
@@ -141,7 +162,7 @@ export class NameSpaces extends React.Component<RouteComponentProps<{}>, Namespa
                 {this.state.namespaces.map((namespace, index) => {
                     return (<div className="col-sm-3" key={namespace.name}><NameSpaceCard ns={namespace} key={namespace.name}/></div>)
                 })}
-                {Auth.user != null &&
+                {Auth.user != null && this.state.config && this.state.config.acl_user_createns &&
                 <div className="col-sm-3">
                     <div className="card">
                         <div className="card-header">Create new</div>

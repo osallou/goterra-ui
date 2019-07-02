@@ -154,6 +154,10 @@ class RecipeCard extends React.Component<RecipeCardProps> {
                             <input className="form-control" name="name" readOnly value={this.props.recipe.description}/>
                         </div>
                         <div className="form-group row">
+                            <label htmlFor="name">Version</label>
+                            <input className="form-control" name="name" readOnly value={this.props.recipe.version}/>
+                        </div>
+                        <div className="form-group row">
                             <label htmlFor="name">Base images</label>
                             <input className="form-control" name="name" readOnly value={this.props.recipe.base.join(',')}/>
                         </div>

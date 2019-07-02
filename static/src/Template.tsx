@@ -155,6 +155,10 @@ class TemplateCard extends React.Component<TemplateCardProps> {
                             <input className="form-control" name="name" readOnly value={this.props.template.description}/>
                         </div>
                         <div className="form-group row">
+                            <label htmlFor="name">Version</label>
+                            <input className="form-control" name="name" readOnly value={this.props.template.version}/>
+                        </div>
+                        <div className="form-group row">
                             <label htmlFor="name">Previous version</label>
                             <input className="form-control" name="name" readOnly value={this.props.template.prev}/>
                         </div>

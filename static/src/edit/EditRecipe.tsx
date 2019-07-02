@@ -40,6 +40,7 @@ interface Recipe {
     prev:string
     inputs:any
     tags:string[]
+    version:string
 }
 
 
@@ -71,7 +72,8 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                 ts: 0,
                 prev: "",
                 inputs: {},
-                tags: []
+                tags: [],
+                version: ""
             }
         }
 
@@ -290,6 +292,10 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                         <div className="form-group row">
                             <label htmlFor="description">Description</label>
                             <textarea rows={4} className="form-control" name="description" value={this.state.recipe.description} onChange={this.onChangeRecipe}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="name">Version</label>
+                            <input className="form-control" name="name" readOnly value={this.state.recipe.version}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>

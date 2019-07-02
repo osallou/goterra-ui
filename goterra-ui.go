@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -21,6 +22,18 @@ var Version string
 // HomeHandler manages base entrypoint, redirect to /app
 var HomeHandler = func(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/app", 301)
+}
+
+// ConfigHandler returns web app config
+var ConfigHandler = func(w http.ResponseWriter, r *http.Request) {
+	config := terraConfig.LoadConfig()
+
+	w.Header().Add("Content-Type", "application/json")
+	resp := make(map[string]interface{})
+	resp["url"] = config.URL
+	resp["acl_user_createns"] = config.ACL.AllowUserCreateNS
+	json.NewEncoder(w).Encode(resp)
+	return
 }
 
 // IndexHandler return default SPA entrypoint index.html
@@ -56,9 +69,16 @@ func main() {
 	r.PathPrefix("/app/favicon.ico").HandlerFunc(IndexHandler("./static/build/favicon.ico"))
 
 	r.PathPrefix("/app").HandlerFunc(IndexHandler("./static/build/index.html"))
+	r.HandleFunc("/app/config", ConfigHandler).Methods("GET")
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 
-	handler := cors.Default().Handler(r)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowedMethods:   []string{"GET"},
+	})
+	handler := c.Handler(r)
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, handler)
 
