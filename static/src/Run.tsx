@@ -21,7 +21,7 @@ interface RunState {
     app: any
 
     run: Run
-    endpoints: any[]
+    endpoints: ShortEndpoint[]
 
     inputName: string
     inputValue: string
@@ -42,6 +42,13 @@ interface Run {
     endpoint:string
     namespace:string
 
+}
+
+interface ShortEndpoint {
+    id:string
+    name:string
+    kind:string
+    namespace:string
 }
 
 
@@ -121,20 +128,12 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             let run = {...this.state.run}
             run.endpoint = event.currentTarget.value
             let endpointNS = this.props.match.params.nsid
-            for(let endpoint of this.state.endpoints) {
-                if (endpoint.id === run.endpoint) {
-                    endpointNS = endpoint.namespace
-                }
-            }
-            EndpointService.hasSecret(endpointNS, run.endpoint).then(res => {
-                ctx.setState({hasSecret: true})
-            }).catch(err => {
-                ctx.setState({hasSecret: false})
-            })
+
             let endpointName = ""
             for(let ep of this.state.endpoints) {
                 if (ep.id === run.endpoint) {
                     endpointName = ep.name
+                    endpointNS = ep.namespace
                     break
                 } 
             }
@@ -142,6 +141,11 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 this.setState({msg: "endpoint not found"})
                 return
             }
+            EndpointService.hasSecret(endpointNS, run.endpoint).then(res => {
+                ctx.setState({hasSecret: true})
+            }).catch(err => {
+                ctx.setState({hasSecret: false})
+            })
             this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName})
         }
     }
@@ -158,22 +162,23 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
             ctx.setState({app: app})
             NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
-                let endpointList:any[] = []
+                let endpointList:ShortEndpoint[] = []
                 let availableTemplates:any[] = []
                 let controlTemplates = false
+                /* TODO get template and check
                 if (app.model === undefined || app.model === null || app.model.length === 0) {
                     controlTemplates = true
                     let kinds = Object.keys(app.templates)
                     for(let kind of kinds) {
                         availableTemplates.push(kind)
                     }
-                }
+                }*/
                 for(let endpoint of endpoints) {
                     if(controlTemplates && availableTemplates.indexOf(endpoint.kind) < 0) {
                         console.log("no template available for this kind of endpoint", endpoint.kind)
                         continue
                     }
-                    endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind})
+                    endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
                 }
                 AppService.public_endpoints().then(endpoints => {
                     for(let endpoint of endpoints) {
@@ -181,7 +186,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             console.log("no template available for this kind of endpoint", endpoint.kind)
                             continue
                         }
-                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind})
+                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
                     }
                     ctx.setState({endpoints: endpointList})
                 }).catch(error => {
@@ -244,7 +249,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     </div>
                     }
 
-                    {this.state.appInputs && this.state.endpoint !== "" && Object.keys(this.state.appInputs.endpoints[this.state.endpointName]).map((input) => (
+                    {this.state.appInputs && this.state.endpoint !== "" && this.state.appInputs.endpoints[this.state.endpointName] !== undefined && Object.keys(this.state.appInputs.endpoints[this.state.endpointName]).map((input) => (
                         <div className="form-group row" key={input}>
                             <label htmlFor={input}>{this.state.appInputs.endpoints[this.state.endpointName][input]}</label>
                             <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>

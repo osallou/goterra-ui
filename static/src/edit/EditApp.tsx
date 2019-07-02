@@ -127,11 +127,6 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             })
         }
 
-        AppService.public_recipes(true).then(recipes => {
-            ctx.setState({publicRecipes: recipes})
-        }).catch(error => {
-            ctx.setState({msg: error.response.data.message || error.message})
-        })
 
         AppService.public_templates(true).then(templates => {
             ctx.setState({publicTemplates: templates})
@@ -148,7 +143,16 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 recipeList.push({name: recipe.name, id: recipe.id})
                 recipesMap[recipe.id]  = recipe.name
             }
-            ctx.setState({recipes: recipeList, recipesMap: recipesMap})
+
+            AppService.public_recipes(true).then(public_recipes => {
+                for(let i=0;i<public_recipes.length; i++){
+                    let recipe = public_recipes[i]
+                    recipesMap[recipe.id]  = recipe.name
+                }
+                ctx.setState({publicRecipes: recipes, recipes: recipeList, recipesMap: recipesMap})
+            }).catch(error => {
+                ctx.setState({msg: error.response.data.message || error.message})
+            })
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
@@ -296,6 +300,11 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
 
     saveApp() {        
         let ctx = this
+
+        if(this.state.app.name === "") {
+            ctx.setState({msg: "please give a name to application"})
+            return
+        }
 
         if(this.state.app.template === "") {
             ctx.setState({msg: "no template selected"})
