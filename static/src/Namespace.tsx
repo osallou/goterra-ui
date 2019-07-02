@@ -6,6 +6,7 @@ import axios from "axios"
 import {Auth} from './Auth/Auth'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {AppService} from './Apps'
 
 
 interface NameSpaceProps {
@@ -17,6 +18,7 @@ interface NamespaceState {
     msg: string
     ns: any
     endpoints: any[]
+    public_endpoints: any[]
     recipes: any[]
     templates: any[]
     apps: any[]
@@ -125,7 +127,10 @@ class EndpointCard extends React.Component<EndpointProps> {
             <div className="card">
                 <div className="card-body">
                     <h5 className="card-title">{this.props.endpoint.name} [{this.props.endpoint.kind}]</h5>
-                    <h6 className="card-subtitle mb-2 text-muted">{this.props.endpoint["id"]}</h6>
+                    <h6 className="card-subtitle mb-2 text-muted">{this.props.endpoint["id"]}
+                    { this.props.endpoint.public === true && <FontAwesomeIcon icon="lock-open"/>}
+                    { this.props.endpoint.public === false && <FontAwesomeIcon icon="lock"/>}
+                    </h6>
                     <p className="card-text">
                     <Link to={`/ns/${this.props.ns}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
                     </p>
@@ -145,7 +150,8 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
             endpoints: [],
             templates: [],
             recipes: [],
-            apps: []
+            apps: [],
+            public_endpoints: []
         }
     }
 
@@ -159,6 +165,12 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
 
         NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
             ctx.setState({endpoints: endpoints})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
+
+        AppService.public_endpoints().then(endpoints => {
+            ctx.setState({public_endpoints: endpoints})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
@@ -221,6 +233,10 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         <div className="card-header">Endpoints</div>
                         <div className="card-body">
                         {this.state.endpoints && this.state.endpoints.map((endpoint, index) => {
+                        return (<div key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
+                        })}
+                        <br/>
+                        {this.state.public_endpoints && this.state.public_endpoints.map((endpoint, index) => {
                         return (<div key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
                         })}
                         <Link to={`/ns/${this.state.ns["_id"]}/edit/endpoint`}><button type="button" className="btn btn-primary">Create</button></Link>

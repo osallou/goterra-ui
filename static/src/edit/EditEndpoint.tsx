@@ -39,7 +39,8 @@ interface EndPoint {
 	features:any
 	inputs:any
 	config:any
-	images:any
+    images:any
+    public:boolean
 }
 
 const CloudTypes:string[] = ["openstack"]
@@ -110,7 +111,8 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
                 features: features,
                 inputs: inputs,
                 config: this.getConfig(CloudTypes[0]),
-                images: {}
+                images: {},
+                public: false
             }
         }
         this.onChangeType = this.onChangeType.bind(this)
@@ -121,6 +123,8 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
         this.onConfigChange = this.onConfigChange.bind(this)
         this.trashImage = this.trashImage.bind(this)
         this.saveEndpoint = this.saveEndpoint.bind(this)
+        this.isPublic = this.isPublic.bind(this)
+        this.onChangePublic = this.onChangePublic.bind(this)
     }
 
     componentDidMount() {
@@ -227,6 +231,25 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
         }
     }
 
+    onChangePublic(event:React.FormEvent<HTMLSelectElement>) {
+        if (event.currentTarget.value != null) {
+            let endpoint = {...this.state.endpoint}
+            if (event.currentTarget.value === "true") {
+                endpoint.public = true
+            } else {
+                endpoint.public = false
+            }
+            this.setState({endpoint: endpoint})
+        }
+    }
+
+    isPublic(): string {
+        if(this.state.endpoint.public) {
+            return "true"
+        }
+        return "false"
+    }
+
     render() {
 
         return (
@@ -253,6 +276,13 @@ export class EditEndpoint extends React.Component<RouteComponentProps<MatchParam
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
                             <input className="form-control" name="name" value={this.state.endpoint.name} onChange={this.onChangeEndpoint}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="public">Public?</label>
+                            <select className="form-control" name="description" value={this.isPublic()} onChange={this.onChangePublic}>
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
                         </div>
                         <h4>Configuration</h4>
                         { this.state.endpoint.kind === "openstack" && 

@@ -9,6 +9,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
  export class AppService {
 
+
+    static public_endpoints(): Promise<any[]> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/endpoints")
+            .then(function (response) {
+                resolve(response.data.endpoints)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
     static public_recipes(light_mode: boolean): Promise<any[]> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {

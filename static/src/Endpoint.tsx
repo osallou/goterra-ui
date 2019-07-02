@@ -210,6 +210,10 @@ class EndpointCard extends React.Component<EndpointProps,EndpointCardState> {
                             <label htmlFor="name">Description</label>
                             <input className="form-control" name="name" readOnly value={this.props.endpoint.description}/>
                         </div>
+                        <div className="form-group row">
+                            <label htmlFor="name">Public</label>
+                            <input className="form-control" name="name" readOnly value={this.props.endpoint.public}/>
+                        </div>
                         <h4>Configuration</h4>
                         {  Object.keys(this.props.endpoint.config).map((key:string, _: number) => (
                             <div className="form-group row" key={key}>
