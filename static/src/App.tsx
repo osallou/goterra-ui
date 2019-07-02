@@ -200,7 +200,7 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/logout'
         render={(props) => <Logout {...props} onLogout={this.onLogout} />}
         />
-        <Route exact path='/app/auth/oidc/google/callback'
+        <Route exact path='/auth/oidc/google/callback'
           render={(props) => <GoogleAuth {...props} onLogin={this.onLogin}/>}/>
       </Switch>
       {this.state.fireRedirect && (<Redirect to={'/'}/>)}
