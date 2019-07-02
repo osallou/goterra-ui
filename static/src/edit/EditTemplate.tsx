@@ -138,6 +138,10 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                 template.description = event.currentTarget.value
                 break
             }
+            case "version": {
+                template.version = event.currentTarget.value
+                break
+            }
         }
 
         this.setState({template: template})
@@ -278,7 +282,7 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Version</label>
-                            <input className="form-control" name="name" readOnly value={this.state.template.version}/>
+                            <input className="form-control" name="name" value={this.state.template.version} onChange={this.onChangeTemplateInfo}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>

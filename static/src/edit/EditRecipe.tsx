@@ -177,6 +177,10 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                 recipe.parent = event.currentTarget.value
                 break
             }
+            case "version": {
+                recipe.version = event.currentTarget.value
+                break
+            }
         }
 
         this.setState({recipe: recipe})
@@ -295,7 +299,7 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Version</label>
-                            <input className="form-control" name="name" readOnly value={this.state.recipe.version}/>
+                            <input className="form-control" name="name" onChange={this.onChangeRecipe} value={this.state.recipe.version}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>

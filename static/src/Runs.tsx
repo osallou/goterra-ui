@@ -181,7 +181,7 @@ function timeConverter(UNIX_timestamp:number){
     } catch(err) {
         return ""
     }
-  }
+}
 
 
   interface RunCardProps {
@@ -251,6 +251,7 @@ interface RunCardState {
     }
 
     componentDidUpdate(prevProps: RunCardProps, _: RunCardState) {
+
         let ctx = this
 
         if(prevProps.run.id === this.props.run.id) {

@@ -8,6 +8,8 @@ import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {AppService} from './Apps'
+import{timeConverter} from './Tools'
+
 
 export class TemplateService {
     static get(nsid:string, template:string): Promise<any> {
@@ -115,9 +117,13 @@ class TemplateSmallCard extends React.Component<TemplateSmallCardProps> {
             <div className="card">
                <div className="card-header" onClick={this.props.onPress(this.props.template)}>{this.props.template.name}</div>
                 <div className="card-body">
-                    {this.props.template.description}
+                    <div>{this.props.template.description}</div>
+                    <div>Version: {this.props.template.version}</div>
+                    <div>{timeConverter(this.props.template.ts)})</div>
+                    <div>
                     { this.props.template.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.template.public === false && <FontAwesomeIcon icon="lock"/>}
+                    </div>
                 </div>
                 
             </div>
@@ -262,8 +268,8 @@ export class TemplateSpace extends React.Component<RouteComponentProps<MatchPara
                         <div className="col-sm-6" key={template.id}><TemplateSmallCard onPress={this.selectTemplate} template={template} ns={this.state.ns}/></div>
                     ))}
                     </div>
+                    <div className="row"><div className="col-sm-6"><h4>Public templates</h4></div></div>
                     <div className="row">
-                    <div className="col-sm-6"><h4>Public templates</h4></div>
                     {this.state.publicTemplates.map((template:any, index: number) => (
                         <div className="col-sm-6" key={template.id}><TemplateSmallCard onPress={this.selectTemplate} template={template} ns={this.state.ns}/></div>
                     ))}

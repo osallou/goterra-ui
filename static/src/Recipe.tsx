@@ -8,6 +8,9 @@ import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {AppService} from './Apps'
 
+import{timeConverter} from './Tools'
+
+
 export class RecipeService {
     static get(nsid:string, recipe:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
@@ -113,9 +116,13 @@ class RecipeSmallCard extends React.Component<RecipeSmallCardProps> {
             <div className="card">
                <div className="card-header" onClick={this.props.onPress(this.props.recipe)}>{this.props.recipe.name}</div>
                 <div className="card-body">
-                    {this.props.recipe.description}
+                    <div>{this.props.recipe.description}</div>
+                    <div>Version: {this.props.recipe.version}</div>
+                    <div>{timeConverter(this.props.recipe.ts)})</div>
+                    <div>
                     { this.props.recipe.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.recipe.public === false && <FontAwesomeIcon icon="lock"/>}
+                    </div>
                 </div>
                 
             </div>
@@ -266,8 +273,8 @@ export class RecipeSpace extends React.Component<RouteComponentProps<MatchParams
                     ))}
                     </div>
 
+                    <div className="row"><div className="col-sm-6"><h4>Public recipes</h4></div></div>
                     <div className="row">
-                    <div className="col-sm-6"><h4>Public recipes</h4></div>
                     {this.state.publicRecipes.map((recipe:any, index: number) => (
                         <div className="col-sm-6" key={recipe.id}><RecipeSmallCard onPress={this.selectRecipe} recipe={recipe} ns={this.state.ns}/></div>
                     ))}
