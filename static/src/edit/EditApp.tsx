@@ -53,6 +53,7 @@ interface App {
     model: any[]
     template: string
     recipes: string[]
+    templaterecipes:any
 }
 
 export class EditApp extends React.Component<RouteComponentProps<MatchParams>, EditAppState> {
@@ -76,7 +77,8 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 prev: "",
                 model: [],
                 template: "",
-                recipes: []
+                recipes: [],
+                templaterecipes: {}
             },
             inputName: "",
             inputLabel: "",
@@ -111,7 +113,9 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
 
         this.onChangeRecipe = this.onChangeRecipe.bind(this)
         this.onAddRecipe = this.onAddRecipe.bind(this)
+        this.onAddTemplateRecipe = this.onAddTemplateRecipe.bind(this)
         this.trashRecipe = this.trashRecipe.bind(this)
+        this.trashTemplateRecipe = this.trashTemplateRecipe.bind(this)
 
     }
 
@@ -149,7 +153,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                     let recipe = public_recipes[i]
                     recipesMap[recipe.id]  = recipe.name
                 }
-                ctx.setState({publicRecipes: recipes, recipes: recipeList, recipesMap: recipesMap})
+                ctx.setState({publicRecipes: public_recipes, recipes: recipeList, recipesMap: recipesMap})
             }).catch(error => {
                 ctx.setState({msg: error.response.data.message || error.message})
             })
@@ -162,7 +166,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             
             for(let i=0;i<templates.length; i++){
                 let template = templates[i]
-                templateList.push({name: template.name, id: template.id})
+                templateList.push({name: template.name, id: template.id, varrecipes: template.varrecipes})
             }
             ctx.setState({templates: templateList})
         }).catch(error => {
@@ -181,6 +185,18 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
         this.setState({app: app})
     }
 
+    onAddTemplateRecipe(tplVar:string) {
+        let ctx = this
+        return function() {
+            let app = {...ctx.state.app}
+            if(app.templaterecipes[tplVar].indexOf(ctx.state.selectedRecipe)>=0) {
+                return
+            }
+            app.templaterecipes[tplVar].push(ctx.state.selectedRecipe)
+            ctx.setState({app: app})
+        }
+    }
+
     trashRecipe(input:string) {
         let ctx = this
         return function() {
@@ -188,6 +204,21 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             let index = app.recipes.indexOf(input)
             if (index >= 0) {
                 app.recipes.splice(index, 1)
+            }
+            ctx.setState({app: app})
+        }
+    }
+
+    trashTemplateRecipe(tplVar:string, input:string) {
+        let ctx = this
+        return function() {
+            let app = {...ctx.state.app}
+            if(app.templaterecipes[tplVar] === undefined) {
+                return
+            }
+            let index = app.templaterecipes[tplVar].indexOf(input)
+            if (index >= 0) {
+                app.templaterecipes[tplVar].splice(index, 1)
             }
             ctx.setState({app: app})
         }
@@ -219,6 +250,32 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
             // assert non null as we test before
             let app = {...this.state.app}
             app.template = event.currentTarget.value
+            let selectedTemplate = null
+            for(let tpl of this.state.templates) {
+                console.log('search templates', tpl, app.template)
+                if (tpl.id === app.template) {
+                    selectedTemplate = tpl
+                    break
+                }
+            }
+            if(selectedTemplate === null) {
+                for(let tpl of this.state.publicTemplates) {
+                    console.log('search public templates', tpl, app.template)
+                    if (tpl.id === app.template) {
+                        selectedTemplate = tpl
+                        break
+                    }
+                }
+            }
+               
+            //this.state.publicTemplates
+            app.templaterecipes = {}
+            console.log('selected template', selectedTemplate)
+            if (selectedTemplate !== null && selectedTemplate.varrecipes !== undefined) {
+                for(let tplvar of selectedTemplate.varrecipes) {
+                    app.templaterecipes[tplvar] = []
+                }
+            }
             this.setState({selectedTemplate: event.currentTarget.value, app: app})
         }
     }
@@ -374,32 +431,6 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                             </div>  
                         }
 
-                        <h4>Recipes</h4>
-
-                        <div className="form-group row">
-                            <select className="form-control" value={this.state.selectedRecipe} onChange={this.onChangeRecipe}>
-                                <option value="">Select a recipe</option>
-                                <optgroup label="Private">
-                                {this.state.recipes.map((recipe) => (
-                                    <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
-                                ))}
-                                </optgroup>
-                                <optgroup label="Public">
-                                {this.state.publicRecipes.map((recipe) => (
-                                    <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
-                                ))}      
-                                </optgroup>
-                            </select>
-                            <button type="button" className="btn btn-primary" onClick={this.onAddRecipe}>Add</button>
-                        </div>
-                        {this.state.app.recipes.map((recipe) => (
-                            <div className="form-group row" key={recipe}>
-                            <label htmlFor="name">{recipe}  <span onClick={this.trashRecipe(recipe)}><FontAwesomeIcon icon="trash-alt"/></span></label>
-                            <input className="form-control" name={recipe} readOnly value={this.state.recipesMap[recipe]}/>
-                        </div>                            
-                        ))}
-
-
                         <h4>Templates</h4>
                         
                         <div className="form-group row">
@@ -416,6 +447,42 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                                 ))}  
                                 </optgroup>
                             </select>
+                        </div>
+                        <div>
+                            {Object.keys(this.state.app.templaterecipes).map((tplVar) => (
+                                <div className="card" key={tplVar}>
+                                    <div className="card-header">{tplVar} recipes</div>
+                                    <div className="card-body">
+                                    <div className="form-group row">
+                                        <select className="form-control" value={this.state.selectedRecipe} onChange={this.onChangeRecipe}>
+                                            <option value="">Select a recipe</option>
+                                            <optgroup label="Private">
+                                            {this.state.recipes.map((recipe) => (
+                                                <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
+                                            ))}
+                                            </optgroup>
+                                            <optgroup label="Public">
+                                            {this.state.publicRecipes.map((recipe) => (
+                                                <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
+                                            ))}      
+                                            </optgroup>
+                                        </select>
+                                        <button type="button" className="btn btn-primary" onClick={this.onAddTemplateRecipe(tplVar)}>Add</button>
+                                    </div>
+
+                                    {this.state.app.templaterecipes[tplVar].map((recipe:string) => (
+                                        <div className="form-group row" key={recipe}>
+                                        <label htmlFor="name">{recipe}  <span onClick={this.trashTemplateRecipe(tplVar, recipe)}><FontAwesomeIcon icon="trash-alt"/></span></label>
+                                        <input className="form-control" name={recipe} readOnly value={this.state.recipesMap[recipe]}/>
+                                    </div>                            
+                                    ))}
+
+
+
+                                    </div>
+                                </div>
+                            ))}
+
                         </div>
  
                         <div className="form-group row">
