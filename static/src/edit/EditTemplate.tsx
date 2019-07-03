@@ -24,6 +24,8 @@ interface EditTemplateState {
     inputLabel: string
     fireModal: boolean
     templateKind: string
+
+    varrecipe: string
 }
 
 
@@ -42,6 +44,7 @@ interface Template {
     data: any
     tags: string[]
     version:string
+    varrecipes: string[]
 }
 
 export class EditTemplate extends React.Component<RouteComponentProps<MatchParams>, EditTemplateState> {
@@ -65,12 +68,14 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                 prev: "",
                 model: [],
                 tags: [],
-                version: ""
+                version: "",
+                varrecipes: []
             },
             inputName: "",
             inputLabel: "",
             tags: "",
             templateKind: CloudTypes[0],
+            varrecipe: "",
 
             namespace: this.props.match.params.nsid,
             msg: ""
@@ -89,6 +94,10 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
         this.cancelModal = this.cancelModal.bind(this)
         this.generateTemplates = this.generateTemplates.bind(this)
         this.onChangeTags = this.onChangeTags.bind(this)
+
+        this.onChangeVarRecipe = this.onChangeVarRecipe.bind(this)
+        this.onAddVarRecipe = this.onAddVarRecipe.bind(this)
+        this.onTrashVarRecipe = this.onTrashVarRecipe.bind(this)
 
     }
 
@@ -122,6 +131,32 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
         if (event.currentTarget.value != null) {
             // assert non null as we test before
             this.setState({templateKind: event.currentTarget.value!})
+        }
+    }
+
+   onChangeVarRecipe(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            this.setState({varrecipe: event.currentTarget.value})
+        }
+    }
+
+    onAddVarRecipe() {
+        let template = {...this.state.template}
+        if(template.varrecipes.indexOf(this.state.varrecipe) < 0) {
+            template.varrecipes.push(this.state.varrecipe)
+        }
+        this.setState({template: template, varrecipe: ""})
+    }
+
+    onTrashVarRecipe(recipe: string) {
+        let ctx = this
+        return function() {
+            let index = ctx.state.template.varrecipes.indexOf(recipe)
+            if (index >= 0) {
+                let template = {...ctx.state.template}
+                template.varrecipes.splice(index, 1)
+                ctx.setState({template: template})
+            }
         }
     }
 
@@ -173,7 +208,7 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
     onAddInput() {
         let template = {...this.state.template}
         template.inputs[this.state.inputName] = this.state.inputLabel
-        this.setState({template: template})
+        this.setState({template: template, inputLabel: "", inputName: ""})
     }
 
     onChangeTemplate(key:string) {
@@ -316,8 +351,21 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                             <div className="form-group row" key={key}>
                                 <label htmlFor="name">{key}  <span onClick={this.trashInput(key)}><FontAwesomeIcon icon="trash-alt"/></span></label>
                                 <input className="form-control" name={key} readOnly value={this.state.template.inputs[key]}/>
+                                <button type="button" className="btn btn-primary" onClick={this.onAddInput}>Add</button>
                             </div>
                         ))}
+                        <h4>Template recipes variables</h4>
+                        <div className="form-group row">
+                            <label htmlFor="varrecipe">Variable name</label>
+                            <input className="form-control" name="varrecipe" value={this.state.varrecipe} onChange={this.onChangeVarRecipe}/>
+                            <button type="button" className="btn btn-primary" onClick={this.onAddVarRecipe}>Add</button>
+                        </div>
+                        {this.state.template.varrecipes.map((variable) => (
+                            <div className="form-group row" key={variable}>
+                            <label htmlFor="name">{variable}  <span onClick={this.onTrashVarRecipe(variable)}><FontAwesomeIcon icon="trash-alt"/></span></label>
+                        </div>                            
+                        ))}
+
                         <h4>Templates</h4>
                         {this.state.template.model && this.state.template.model.length > 0 && <div className="alert alert-warning">
                             A model is already defined, templates will be generated from model
