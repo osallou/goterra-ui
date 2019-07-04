@@ -161,6 +161,15 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 } 
             }
             if(endpointName === "") {
+                for(let ep of this.state.public_endpoints) {
+                    if (ep.id === run.endpoint) {
+                        endpointName = ep.name
+                        endpointNS = ep.namespace
+                        break
+                    } 
+                }               
+            }
+            if(endpointName === "") {
                 this.setState({msg: "endpoint not found"})
                 return
             }
@@ -205,7 +214,6 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                         if (gotMatch) {
                             endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
                         }
-                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
                     }
                     ctx.setState({public_endpoints: endpointList})
                 }).catch(error => {
@@ -233,6 +241,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
                         }
                     }
+                    ctx.setState({endpoints: endpointList})
 
                 }).catch(error => {
                     ctx.setState({msg: error.response.data.message || error.message})

@@ -21,6 +21,7 @@ import {EditApp} from './edit/EditApp'
 import {Api} from './Api'
 import {RunApp} from './Run'
 import {UserSpace} from './User'
+import {About} from './About'
 
 
 
@@ -157,6 +158,9 @@ class App extends React.Component<AppProps, AppState> {
                 <Link className="dropdown-item" to="/api/goterra-run-agent">Run-agent</Link>
               </div>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/about">About</Link>
+            </li>
           </ul>
           <ul className="navbar-nav my-2 my-lg-0">
             { !this.state.isLogged && <li className="nav-item"><Link className="nav-link" to="/login">login</Link></li>}
@@ -173,7 +177,9 @@ class App extends React.Component<AppProps, AppState> {
       </div>
 
       <Switch>
-      <Route exact path='/' component={Home}/>
+        <Route exact path='/' component={Home}/>
+        <Route exact path='/about' component={About}/>
+
         <Route exact path='/ns' component={NameSpaces}/>
         <Route exact path='/ns/:nsid' component={NameSpace}/>
         <Route exact path='/ns/:nsid/endpoint/:endpointid' component={EndpointSpace}/>
