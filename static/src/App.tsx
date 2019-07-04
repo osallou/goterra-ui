@@ -20,6 +20,7 @@ import {EditTemplate} from './edit/EditTemplate'
 import {EditApp} from './edit/EditApp'
 import {Api} from './Api'
 import {RunApp} from './Run'
+import {UserSpace} from './User'
 
 
 
@@ -193,7 +194,7 @@ class App extends React.Component<AppProps, AppState> {
         <Route exact path='/run' component={Runs}/>
         <Route exact path='/api/:id' component={Api}/>
         <Route exact path='/ns/:nsid/run/app/:appid' component={RunApp}/>
-
+        <Route exact path='/user/:userid' component={UserSpace}/>
         <Route exact path='/login'
           render={(props) => <Login {...props} onLogin={this.onLogin} onMessage={this.onMessage}/>}
         />
