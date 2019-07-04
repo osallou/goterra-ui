@@ -47,7 +47,7 @@ interface App {
     namespace: string
     templates: any
     inputs:any
-    image:string
+    image:string[]
     ts:number
     prev:string
     model: any[]
@@ -72,7 +72,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                 namespace: this.props.match.params.nsid,
                 templates: {},
                 inputs: {},
-                image: "",
+                image: [],
                 ts: 0,
                 prev: "",
                 model: [],
@@ -414,7 +414,7 @@ export class EditApp extends React.Component<RouteComponentProps<MatchParams>, E
                         </div>
                         <div className="form-group row">
                             <label htmlFor="image">Used image</label>
-                            <input className="form-control" name="image" value={this.state.app.image} readOnly/>
+                            <input className="form-control" name="image" value={this.state.app.image.join(',')} readOnly/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>

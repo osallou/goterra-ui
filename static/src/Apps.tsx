@@ -9,6 +9,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
  export class AppService {
 
+    static public_apps(): Promise<any[]> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/apps")
+            .then(function (response) {
+                resolve(response.data.apps)
+            })
+            .catch(function (error) {
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
 
     static public_endpoints(): Promise<any[]> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
@@ -151,6 +164,8 @@ interface AppsState {
     ns: any
     app: any | null
     apps: any[]
+    publicApps: any[]
+
 }
 
 interface AppSmallCardProps {
@@ -198,7 +213,7 @@ class AppCard extends React.Component<AppCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.app.name} <Link to={`/ns/${this.props.ns}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
+               <div className="card-header">{this.props.app.name} <Link to={`/ns/${this.props.app.namespace}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
                 <div className="card-body">
                     {this.props.app.description}
                     { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
@@ -219,7 +234,11 @@ class AppCard extends React.Component<AppCardProps> {
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Base image</label>
-                            <input className="form-control" name="name" readOnly value={this.props.app.image}/>
+                            <input className="form-control" name="name" readOnly value={this.props.app.image.join(',')}/>
+                        </div>
+                        <div className="form-group row">
+                            <label htmlFor="name">Public</label>
+                            <input className="form-control" name="name" readOnly value={this.props.app.public}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Previous version</label>
@@ -255,7 +274,8 @@ export class AppsSpace extends React.Component<RouteComponentProps<MatchParams>,
             msg: "",
             ns: this.props.match.params.nsid,
             app: null,
-            apps: []
+            apps: [],
+            publicApps: []
         }
         this.selectApp = this.selectApp.bind(this)
     }
@@ -282,6 +302,11 @@ export class AppsSpace extends React.Component<RouteComponentProps<MatchParams>,
                 ctx.setState({msg: error})
             })
         }
+        AppService.public_apps().then(apps => {
+            ctx.setState({publicApps: apps})
+        }).catch(error => {
+            ctx.setState({msg: error.response.data.message || error.message})
+        })
     }
 
     render() {
@@ -305,6 +330,12 @@ export class AppsSpace extends React.Component<RouteComponentProps<MatchParams>,
                     ))}
                     </div>
                 </div>
+                <div className="row"><div className="col-sm-6"><h4>Public applications</h4></div></div>
+                    <div className="row">
+                    {this.state.publicApps.map((app:any, index: number) => (
+                        <div className="col-sm-6" key={app.id}><AppSmallCard onPress={this.selectApp} app={app} ns={this.state.ns}/></div>
+                    ))}
+                    </div>
                 <div className="col-sm-6">
                 { this.state.app && <AppCard app={this.state.app} ns={this.state.ns}/> }
                 </div>

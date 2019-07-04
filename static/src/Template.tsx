@@ -15,7 +15,6 @@ export class TemplateService {
     static get(nsid:string, template:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
-            console.log("get template", template)
             axios.get(root + "/deploy/ns/" + nsid + "/template/" + template)
             .then(function (response) {
                 // handle success

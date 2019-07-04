@@ -8,6 +8,7 @@ import {AppService} from './Apps'
 import {EndpointService} from './Endpoint'
 import { NameSpaceService } from "./Namespace";
 import {RunService} from './Runs'
+import {TemplateService} from './Template'
 
 interface MatchParams {
     nsid: string
@@ -173,6 +174,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
     componentDidMount() {
         let ctx = this
 
+
         AppService.getInputs(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
             ctx.setState({appInputs: app})
         }).catch(error => {
@@ -181,34 +183,56 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
 
         AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
             ctx.setState({app: app})
-            NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
-                let endpointList:ShortEndpoint[] = []
-                let availableTemplates:any[] = []
-                let controlTemplates = false
-                /* TODO get template and check
-                if (app.model === undefined || app.model === null || app.model.length === 0) {
-                    controlTemplates = true
-                    let kinds = Object.keys(app.templates)
-                    for(let kind of kinds) {
-                        availableTemplates.push(kind)
-                    }
-                }*/
-                for(let endpoint of endpoints) {
-                    if(controlTemplates && availableTemplates.indexOf(endpoint.kind) < 0) {
-                        console.log("no template available for this kind of endpoint", endpoint.kind)
-                        continue
-                    }
-                    endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
-                }
-                AppService.public_endpoints().then(endpoints => {
+            TemplateService.get(this.props.match.params.nsid, app.template).then(template => {
+            
+                NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
+                    let endpointList:ShortEndpoint[] = []
+                    let availableTemplates:any[] = []
+                    let controlTemplates = false
+                    
                     for(let endpoint of endpoints) {
-                        if(controlTemplates && availableTemplates.indexOf(endpoint.kind) < 0) {
+                        if (template.data[endpoint.kind] === undefined) {
                             console.log("no template available for this kind of endpoint", endpoint.kind)
                             continue
                         }
-                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
+                        // Check images compatible
+                        let gotMatch = false
+                        for(let image of app.image) {
+                            // is image available in endpoint
+                            if (endpoint.images[image] !== undefined && endpoint.images[image] !== "") {
+                                gotMatch = true
+                                break
+                            }
+                        }
+                        if (gotMatch) {
+                            endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
+                        }
                     }
-                    ctx.setState({endpoints: endpointList})
+                    AppService.public_endpoints().then(endpoints => {
+                        for(let endpoint of endpoints) {
+                            if (template.data[endpoint.kind] === undefined) {
+                                console.log("no template available for this kind of endpoint", endpoint.kind)
+                                continue
+                            }
+                            // Check images compatible
+                            let gotMatch = false
+                            for(let image of app.image) {
+                                // is image available in endpoint
+                                if (endpoint.images[image] !== undefined && endpoint.images[image] !== "") {
+                                    gotMatch = true
+                                    break
+                                }
+                            }
+                            if (gotMatch) {
+                                endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
+                            }
+                            endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
+                        }
+                        ctx.setState({endpoints: endpointList})
+                    }).catch(error => {
+                        ctx.setState({msg: error.response.data.message || error.message})
+                    })
+
                 }).catch(error => {
                     ctx.setState({msg: error.response.data.message || error.message})
                 })
@@ -216,6 +240,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             }).catch(error => {
                 ctx.setState({msg: error.response.data.message || error.message})
             })
+
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
