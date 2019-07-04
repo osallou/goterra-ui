@@ -23,6 +23,7 @@ interface RunState {
 
     run: Run
     endpoints: ShortEndpoint[]
+    public_endpoints: ShortEndpoint[]
 
     inputName: string
     inputValue: string
@@ -73,6 +74,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 namespace: this.props.match.params.nsid,
             },
             endpoints: [],
+            public_endpoints: [],
         
             inputName: "",
             inputValue: "",
@@ -184,11 +186,34 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         AppService.get(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
             ctx.setState({app: app})
             TemplateService.get(this.props.match.params.nsid, app.template).then(template => {
-            
+                let endpointList:ShortEndpoint[] = []
+                AppService.public_endpoints().then(endpoints => {
+                    for(let endpoint of endpoints) {
+                        if (template.data[endpoint.kind] === undefined) {
+                            console.log("no template available for this kind of endpoint", endpoint.kind)
+                            continue
+                        }
+                        // Check images compatible
+                        let gotMatch = false
+                        for(let image of app.image) {
+                            // is image available in endpoint
+                            if (endpoint.images[image] !== undefined && endpoint.images[image] !== "") {
+                                gotMatch = true
+                                break
+                            }
+                        }
+                        if (gotMatch) {
+                            endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
+                        }
+                        endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
+                    }
+                    ctx.setState({public_endpoints: endpointList})
+                }).catch(error => {
+                    ctx.setState({msg: error.response.data.message || error.message})
+                })
+
                 NameSpaceService.endpoints(this.props.match.params.nsid).then(endpoints => {
                     let endpointList:ShortEndpoint[] = []
-                    let availableTemplates:any[] = []
-                    let controlTemplates = false
                     
                     for(let endpoint of endpoints) {
                         if (template.data[endpoint.kind] === undefined) {
@@ -208,30 +233,6 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
                         }
                     }
-                    AppService.public_endpoints().then(endpoints => {
-                        for(let endpoint of endpoints) {
-                            if (template.data[endpoint.kind] === undefined) {
-                                console.log("no template available for this kind of endpoint", endpoint.kind)
-                                continue
-                            }
-                            // Check images compatible
-                            let gotMatch = false
-                            for(let image of app.image) {
-                                // is image available in endpoint
-                                if (endpoint.images[image] !== undefined && endpoint.images[image] !== "") {
-                                    gotMatch = true
-                                    break
-                                }
-                            }
-                            if (gotMatch) {
-                                endpointList.push({id: endpoint.id, name: endpoint.name, kind: endpoint.kind, namespace: endpoint.namespace})
-                            }
-                            endpointList.push({id: endpoint.id, name: endpoint.name + "[public]", kind: endpoint.kind, namespace: endpoint.namespace})
-                        }
-                        ctx.setState({endpoints: endpointList})
-                    }).catch(error => {
-                        ctx.setState({msg: error.response.data.message || error.message})
-                    })
 
                 }).catch(error => {
                     ctx.setState({msg: error.response.data.message || error.message})
@@ -264,10 +265,18 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     <div className="form-group row">
                         <label htmlFor="endpoint">Endpoint</label>
                         <select className="form-control" name="endpoint" value={this.state.endpoint} onChange={this.onEndpointChange}>
-                            <option value="">Select an endpoint</option>
-                            {this.state.endpoints.map((endpoint) => (
-                                <option key={endpoint.id} value={endpoint.id}>{endpoint.name}</option>
-                            ))}
+                                <option value="">Select an endpoint</option>
+                                <optgroup label="Private">
+                                {this.state.endpoints.map((endpoint) => (
+                                    <option key={endpoint.id} value={endpoint.id}>{endpoint.name}</option>
+                                ))}
+                                </optgroup>
+                                <optgroup label="Public">
+                                {this.state.public_endpoints.map((endpoint) => (
+                                    <option key={endpoint.id} value={endpoint.id}>{endpoint.name}</option>
+                                ))}  
+                                </optgroup>
+
                         </select>
                     </div>
                     {this.state.appInputs && Object.keys(this.state.appInputs.template).length > 0 && <h4>Application inputs</h4>}
