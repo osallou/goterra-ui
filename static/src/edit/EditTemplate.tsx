@@ -377,7 +377,6 @@ export class EditTemplate extends React.Component<RouteComponentProps<MatchParam
                                     ))}
                                 </select>
                                 <button type="button" className="btn btn-primary" onClick={this.onAddTemplate}>Add</button>
-                                <button type="button" className="btn btn-primary" onClick={this.fireModal}>Wizard</button>
 
                         </div>
                         { Object.keys(this.state.template.data).map((key) => (

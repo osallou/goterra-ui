@@ -21,10 +21,44 @@ interface NamespaceState {
     public_endpoints: any[]
     recipes: any[]
     templates: any[]
-    apps: any[]
+    apps: any[],
+    acct: any[],
+    acctMonth: any[]
 }
 
 export class NameSpaceService {
+
+    static getAcct(nsid:string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/acct/ns/" + nsid)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.acct)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
+
+    static getAcctFrom(nsid:string, from:number): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/acct/ns/" + nsid + "/from/" + from)
+            .then(function (response) {
+                // handle success
+                resolve(response.data.acct)
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+                reject(error)
+            })
+        })
+    }
     static get(nsid:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
@@ -132,7 +166,7 @@ class EndpointCard extends React.Component<EndpointProps> {
                     { this.props.endpoint.public === false && <FontAwesomeIcon icon="lock"/>}
                     </h6>
                     <p className="card-text">
-                    <Link to={`/ns/${this.props.endpoint["namespace"]}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
+                    <Link to={`/ns/${this.props.ns}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
                     </p>
                 </div>
             </div>
@@ -151,7 +185,9 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
             templates: [],
             recipes: [],
             apps: [],
-            public_endpoints: []
+            public_endpoints: [],
+            acct: [],
+            acctMonth: []
         }
     }
 
@@ -192,6 +228,20 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
+
+        NameSpaceService.getAcct(this.props.match.params.nsid).then(acct => {
+            ctx.setState({acct: acct})
+        }).catch(error => {
+            ctx.setState({msg: error.message})
+        })
+
+        var date = new Date()
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
+        NameSpaceService.getAcctFrom(this.props.match.params.nsid, firstDay.getTime()/1000).then(acctMonth => {
+            ctx.setState({acctMonth: acctMonth})
+        }).catch(error => {
+            ctx.setState({msg: error.message})
+        })
     }
 
     render() {
@@ -207,6 +257,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                 </nav>
 
                 </div>
+                
                 <div className="col-sm-6">
                     <div className="card">
                         <div className="card-header">Owners</div>
@@ -269,6 +320,47 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
 
                         </div>
                     </div>
+                </div>
+                <div className="col-sm-12">
+                <div className="card">
+                    <div className="card-header">Accounting</div>
+                    <div className="card-body">
+                    <h5>Total</h5>
+                    { this.state.acct.map((acct) => (
+                            <table className="table">
+                                <thead><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></thead>
+                                <tbody>
+                            {acct.Series.map((serie:any) => (
+                                <tr>
+                                    <td>{serie.tags.resource}</td>
+                                    <td>{serie.tags.kind}</td>
+                                    <td>{serie.values[0][1]}</td>
+                                    <td>{serie.values[0][2]}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                            </table>
+                    ))}
+
+                    <h5>This month</h5>
+                    { this.state.acctMonth.map((acct) => (
+                            <table className="table">
+                                <thead><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></thead>
+                                <tbody>
+                            {acct.Series.map((serie:any) => (
+                                <tr>
+                                    <td>{serie.tags.resource}</td>
+                                    <td>{serie.tags.kind}</td>
+                                    <td>{serie.values[0][1]}</td>
+                                    <td>{serie.values[0][2]}</td>
+                                    <td>{serie.values[0][3]}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                            </table>
+                )   )}
+                    </div>
+                </div>
                 </div>
             </div>
         )

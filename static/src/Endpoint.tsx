@@ -275,9 +275,11 @@ export class EndpointSpace extends React.Component<RouteComponentProps<MatchPara
                     <li className="breadcrumb-item" aria-current="page">endpoint</li>
                     <li className="breadcrumb-item active" aria-current="page"><Link to={`/ns/${this.state.ns}/endpoint/${this.state.endpoint["id"]}`}>{this.state.endpoint["id"]}</Link></li>
                 </ol>
+                { this.state.ns === this.state.endpoint.namespace &&
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><Link to={`/ns/${this.state.ns}/edit/endpoint/${this.state.endpoint["id"]}`}>Edit</Link></li>
                 </ol>
+                }
                 </nav>
                 </div>
                 <div className="col-sm-12">

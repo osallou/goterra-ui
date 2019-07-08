@@ -213,7 +213,7 @@ class AppCard extends React.Component<AppCardProps> {
     render() {
         return (
             <div className="card">
-               <div className="card-header">{this.props.app.name} <Link to={`/ns/${this.props.app.namespace}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link></div>
+               <div className="card-header">{this.props.app.name} { this.props.ns === this.props.app.namespace && <Link to={`/ns/${this.props.app.namespace}/edit/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Edit</button></Link>}</div>
                 <div className="card-body">
                     {this.props.app.description}
                     { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
@@ -232,10 +232,11 @@ class AppCard extends React.Component<AppCardProps> {
                             <label htmlFor="name">Description</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.description}/>
                         </div>
+                        { this.props.app.image &&
                         <div className="form-group row">
                             <label htmlFor="name">Base image</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.image.join(',')}/>
-                        </div>
+                        </div>}
                         <div className="form-group row">
                             <label htmlFor="name">Public</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.public}/>
@@ -244,10 +245,10 @@ class AppCard extends React.Component<AppCardProps> {
                             <label htmlFor="name">Previous version</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.prev}/>
                         </div>
-                        <div className="form-group row">
+                        {this.props.app.recipes && <div className="form-group row">
                             <label htmlFor="name">Recipes</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.recipes.join(",")}/>
-                        </div>
+                        </div>}
                         <div className="form-group row">
                             <label htmlFor="name">Created</label>
                             <input className="form-control" name="name" readOnly value={this.props.app.ts}/>
@@ -324,18 +325,19 @@ export class AppsSpace extends React.Component<RouteComponentProps<MatchParams>,
                 </nav>
                 </div>
                 <div className="col-sm-6">
-                <div className="row">
+                    <div className="row">
                     {this.state.apps.map((app:any, index: number) => (
                         <div className="col-sm-6" key={app.id}><AppSmallCard onPress={this.selectApp} app={app} ns={this.state.ns}/></div>
                     ))}
                     </div>
-                </div>
-                <div className="row"><div className="col-sm-6"><h4>Public applications</h4></div></div>
+                    <div className="row"><div className="col-sm-6"><h4>Public applications</h4></div></div>
                     <div className="row">
                     {this.state.publicApps.map((app:any, index: number) => (
                         <div className="col-sm-6" key={app.id}><AppSmallCard onPress={this.selectApp} app={app} ns={this.state.ns}/></div>
                     ))}
                     </div>
+                </div>
+                
                 <div className="col-sm-6">
                 { this.state.app && <AppCard app={this.state.app} ns={this.state.ns}/> }
                 </div>

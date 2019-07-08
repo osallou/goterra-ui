@@ -1,15 +1,15 @@
 
 import React from "react";
-import { RouteComponentProps, Link } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 
 import axios from "axios"
 
 // import {Auth} from './Auth/Auth'
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {AppService} from './Apps'
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+//import {AppService} from './Apps'
 
-import{timeConverter} from './Tools'
+//import{timeConverter} from './Tools'
 
 interface MatchParams {
     userid: string

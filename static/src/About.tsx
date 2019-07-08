@@ -1,5 +1,5 @@
 import React from 'react';
-import { text } from '@fortawesome/fontawesome-svg-core';
+// import { text } from '@fortawesome/fontawesome-svg-core';
 
 
 export class About extends React.Component {
