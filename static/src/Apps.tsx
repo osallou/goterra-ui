@@ -195,7 +195,7 @@ class AppSmallCard extends React.Component<AppSmallCardProps> {
                     { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.app.public === false && <FontAwesomeIcon icon="lock"/>}
                     <div>ID: {this.props.app.id}</div>
-                    <div>Version: {this.props.app.rversion}</div>
+                    <div>Version: {this.props.app.version}</div>
                     <div><Link to={`/ns/${this.props.ns}/run/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Run</button></Link></div>
                 </div>
                 
