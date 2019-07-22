@@ -8,6 +8,7 @@ import {Auth} from './Auth/Auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {AppService} from './Apps'
 
+import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 interface NameSpaceProps {
     ns: NameSpace
@@ -23,7 +24,8 @@ interface NamespaceState {
     templates: any[]
     apps: any[],
     acct: any[],
-    acctMonth: any[]
+    acctMonth: any[],
+    charts: any
 }
 
 export class NameSpaceService {
@@ -44,10 +46,14 @@ export class NameSpaceService {
         })
     }
 
-    static getAcctFrom(nsid:string, from:number): Promise<any> {
+    static getAcctFrom(nsid:string, from:number, byDays: boolean): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        let params:any = null
+        if (byDays) {
+            params = {params: {days: "1"}}
+        }
         return new Promise( (resolve, reject) => {
-            axios.get(root + "/acct/ns/" + nsid + "/from/" + from)
+            axios.get(root + "/acct/ns/" + nsid + "/from/" + from, params)
             .then(function (response) {
                 // handle success
                 resolve(response.data.acct)
@@ -187,7 +193,8 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
             apps: [],
             public_endpoints: [],
             acct: [],
-            acctMonth: []
+            acctMonth: [],
+            charts: {}
         }
     }
 
@@ -237,8 +244,32 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
 
         var date = new Date()
         var firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
-        NameSpaceService.getAcctFrom(this.props.match.params.nsid, firstDay.getTime()/1000).then(acctMonth => {
+        NameSpaceService.getAcctFrom(this.props.match.params.nsid, firstDay.getTime()/1000, false).then(acctMonth => {
             ctx.setState({acctMonth: acctMonth})
+        }).catch(error => {
+            ctx.setState({msg: error.message})
+        })
+        NameSpaceService.getAcctFrom(this.props.match.params.nsid, firstDay.getTime()/1000, true).then(acctMonth => {
+            let charts:any = {}
+            acctMonth[0].Series.forEach((serie:any) => {
+                let values = []
+                let maxs = []
+                for(let i=0;i<serie.values.length; i++) {
+                    let data = serie.values[i][2]
+                    if (data === null) {
+                        data = 0
+                    }
+                    let max = serie.values[i][3]
+                    if (max === null) {
+                        max = 0
+                    }
+                    values.push(data)
+                    maxs.push(max)
+                }
+                charts[serie.tags["resource"] + "d"] = values
+                charts[serie.tags["resource"] + "m"]= maxs
+                ctx.setState({charts: charts})
+            })
         }).catch(error => {
             ctx.setState({msg: error.message})
         })
@@ -349,7 +380,11 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                                 <tbody>
                             {acct.Series.map((serie:any) => (
                                 <tr key={serie.tags.resource}>
-                                    <td>{serie.tags.resource}</td>
+                                    <td>
+                                    {serie.tags.resource}
+                                    <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "m"]}><SparklinesLine color="blue" /></Sparklines> (max)</div>
+                                    <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "d"]}><SparklinesLine color="orange" /></Sparklines> (s)</div>
+                                    </td>
                                     <td>{serie.tags.kind}</td>
                                     <td>{serie.values[0][1]}</td>
                                     <td>{serie.values[0][2]}</td>
@@ -359,6 +394,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                             </tbody>
                             </table>
                 )   )}
+
                     </div>
                 </div>
                 </div>
