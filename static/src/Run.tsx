@@ -24,6 +24,7 @@ interface RunState {
     run: Run
     endpoints: ShortEndpoint[]
     public_endpoints: ShortEndpoint[]
+    defaults: any
 
     inputName: string
     inputValue: string
@@ -75,6 +76,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             },
             endpoints: [],
             public_endpoints: [],
+            defaults: {},
         
             inputName: "",
             inputValue: "",
@@ -87,6 +89,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         this.onRun = this.onRun.bind(this)
         this.onChange = this.onChange.bind(this)
         this.onChangeInfo = this.onChangeInfo.bind(this)
+        this.onSelectChange = this.onSelectChange.bind(this)
     }
 
     onRun() {
@@ -126,6 +129,17 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         }
     }
 
+    onSelectChange(input:string) {
+        let ctx =this
+        return function(event:React.FormEvent<HTMLSelectElement>) {
+            if (event.currentTarget.value != null && event.currentTarget.value !== "") {
+                let run = {...ctx.state.run}
+                run.inputs[input] = event.currentTarget.value
+                ctx.setState({run: run})
+            }
+        }
+    }
+
     onChangeInfo(event:React.FormEvent<HTMLInputElement>) {
         let ctx =this
         if (event.currentTarget.value != null && event.currentTarget.value !== "") {
@@ -153,6 +167,8 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             let endpointNS = this.props.match.params.nsid
 
             let endpointName = ""
+            let defaults = {...ctx.state.appInputs.defaults}
+
             for(let ep of this.state.endpoints) {
                 if (ep.id === run.endpoint) {
                     endpointName = ep.name
@@ -178,7 +194,16 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             }).catch(err => {
                 ctx.setState({hasSecret: false})
             })
-            this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName})
+
+            if (ctx.state.appInputs.endpointdefaults !== undefined && ctx.state.appInputs.endpointdefaults !== null && ctx.state.appInputs.endpointdefaults[endpointName]) {
+                Object.keys(ctx.state.appInputs.endpointdefaults[endpointName]).forEach((key, _ ) => {
+                    defaults[key] = ctx.state.appInputs.endpointdefaults[endpointName][key]
+                })
+
+            }
+            console.log("defaults", defaults)
+            
+            this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName, defaults: defaults})
         }
     }
 
@@ -292,14 +317,26 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     {this.state.appInputs && Object.keys(this.state.appInputs.template).map((input) => (
                         <div className="form-group row" key={input}>
                             <label htmlFor={input}>{this.state.appInputs.template[input]}</label>
-                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                            {this.state.defaults[input] === undefined &&  <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>}
+                            {this.state.defaults[input] !== undefined && <select className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onSelectChange(input)}>
+                                {this.state.defaults[input].map((val:string) => (
+                                    <option key={val}>{val}</option>
+                                ))}
+                            </select>}
+
+
                         </div>
                     ))}
                     { this.state.appInputs && Object.keys(this.state.appInputs.recipes).length > 0 && <h4>Recipes inputs</h4>}
                     {this.state.appInputs && Object.keys(this.state.appInputs.recipes).map((input) => (
                         <div className="form-group row" key={input}>
                             <label htmlFor={input}>{this.state.appInputs.recipes[input]}</label>
-                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                            {this.state.defaults[input] === undefined && <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>}
+                            {this.state.defaults[input] !== undefined && <select className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onSelectChange(input)}>
+                                {this.state.defaults[input].map((val:string) => (
+                                    <option key={val}>{val}</option>
+                                ))}
+                            </select>}
                         </div>
                     ))}
                     <h4>Endpoint inputs</h4>

@@ -326,12 +326,12 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                     <div className="card-header">Accounting</div>
                     <div className="card-body">
                     <h5>Total</h5>
-                    { this.state.acct.map((acct) => (
-                            <table className="table">
-                                <thead><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></thead>
+                    { this.state.acct.map((acct, index) => (
+                            <table className="table" key={index}>
+                                <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></tr></thead>
                                 <tbody>
                             {acct.Series.map((serie:any) => (
-                                <tr>
+                                <tr key={serie.tags.resource}>
                                     <td>{serie.tags.resource}</td>
                                     <td>{serie.tags.kind}</td>
                                     <td>{serie.values[0][1]}</td>
@@ -343,12 +343,12 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                     ))}
 
                     <h5>This month</h5>
-                    { this.state.acctMonth.map((acct) => (
-                            <table className="table">
-                                <thead><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></thead>
+                    { this.state.acctMonth.map((acct, index) => (
+                            <table className="table" key={index}>
+                                <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></tr></thead>
                                 <tbody>
                             {acct.Series.map((serie:any) => (
-                                <tr>
+                                <tr key={serie.tags.resource}>
                                     <td>{serie.tags.resource}</td>
                                     <td>{serie.tags.kind}</td>
                                     <td>{serie.values[0][1]}</td>
