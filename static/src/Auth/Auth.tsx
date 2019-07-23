@@ -71,6 +71,8 @@ type LoginState = {
     msg: string
     googleOIDC: boolean
     AAIOIDC: boolean
+    userid: string
+    userpwd: string
 }
 
 
@@ -81,6 +83,8 @@ export class Login extends React.Component<LoginProps,LoginState> {
             errors: "",
             onLogin: props.onLogin || null,
             apiKey: "",
+            userid: "",
+            userpwd: "",
             msg: "",
             googleOIDC: false,
             AAIOIDC: false
@@ -91,8 +95,9 @@ export class Login extends React.Component<LoginProps,LoginState> {
 
         this.onApiKeyChange = this.onApiKeyChange.bind(this)
         this.onLogin = this.onLogin.bind(this)
+        this.onPasswordChange = this.onPasswordChange.bind(this)
+        this.onLoginChange = this.onLoginChange.bind(this)
 
-        // this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount() {
@@ -117,18 +122,29 @@ export class Login extends React.Component<LoginProps,LoginState> {
         }
     }
 
+    onLoginChange(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            this.setState({userid: event.currentTarget.value})
+        }
+    }
+
+    onPasswordChange(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            this.setState({userpwd: event.currentTarget.value})
+        }
+    }
+
     onLogin() {
         // Should send api key to bind session and get a token
         let ctx = this
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
-        axios.get(root + "/auth/api", {
-            headers: {
-                "X-API-Key": ctx.state.apiKey
-            }
+        axios.post(root + "/auth/login", {
+            uid: this.state.userid,
+            password: this.state.userpwd
         })
         .then(function (response) {
             // handle success
-            ctx.setState({msg: "cool"})
+            ctx.setState({msg: ""})
             let user = Auth.login(response.data.user, response.data.token)
             ctx.props.onLogin(user)
         })
@@ -155,13 +171,16 @@ export class Login extends React.Component<LoginProps,LoginState> {
         return (
             <div>
                 {this.state.errors && <div className="alert alert-warning" role="alert">{this.state.errors}</div>}
-                <p>Login with google</p>
-                <input name="apikey" value={this.state.apiKey} onChange={this.onApiKeyChange} placeholder="api key"></input>
+                <div style={{marginTop: "30px"}}>
+                <p><b>Sign in to access Goterra</b></p>
+                <input name="userid" value={this.state.userid} autoComplete="username" onChange={this.onLoginChange} placeholder="user identifier"></input>
+                <input name="userpwd" type="password" autoComplete="current-password" value={this.state.userpwd} onChange={this.onPasswordChange} placeholder="password"></input>
                 <button onClick={this.onLogin} className="btn btn-primary">Log in</button>
-
-                { this.state.googleOIDC && <button onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>}
-
-                { this.state.AAIOIDC && <button onClick={this.oidcAAI} className="btn btn-primary">Log with Elixir AAI</button>}
+                </div>
+                <div className="row btn-group" style={{margin: "10px"}}>
+                { (this.state.googleOIDC || true) && <button  style={{margin: "10px"}} onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>}
+                { (this.state.AAIOIDC || true) && <button  style={{margin: "10px"}} onClick={this.oidcAAI} className="btn btn-primary">Log with Elixir AAI</button>}
+                </div>
             </div>)
     }
 }
