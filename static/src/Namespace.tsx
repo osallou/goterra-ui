@@ -8,6 +8,8 @@ import {Auth} from './Auth/Auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {AppService} from './Apps'
 
+import * as moment from 'moment'
+
 import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 interface NameSpaceProps {
@@ -166,11 +168,11 @@ class EndpointCard extends React.Component<EndpointProps> {
         return (
             <div className="card">
                 <div className="card-body">
-                    <h5 className="card-title">{this.props.endpoint.name} [{this.props.endpoint.kind}]</h5>
-                    <h6 className="card-subtitle mb-2 text-muted">{this.props.endpoint["id"]}
+                    <h6 className="card-subtitle mb-2 text-muted">
                     { this.props.endpoint.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.endpoint.public === false && <FontAwesomeIcon icon="lock"/>}
                     </h6>
+                    {this.props.endpoint.name} [{this.props.endpoint.kind}] #{this.props.endpoint["id"].slice(-5)}
                     <p className="card-text">
                     <Link to={`/ns/${this.props.ns}/endpoint/${this.props.endpoint["id"]}`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
                     </p>
@@ -289,7 +291,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
 
                 </div>
                 
-                <div className="col-sm-6">
+                <div className="col-sm-4">
                     <div className="card">
                         <div className="card-header">Owners</div>
                         <div className="card-body">
@@ -309,94 +311,93 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                         </div>
                     </div>
                     }
-                </div>
-                <div className="col-sm-6">
                     <div className="card">
                         <div className="card-header">Endpoints</div>
                         <div className="card-body">
                         {this.state.endpoints && this.state.endpoints.map((endpoint, index) => {
-                        return (<div key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
+                        return (<div style={{margin: "2px", fontSize: "14px"}}  key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
                         })}
                         <br/>
                         {this.state.public_endpoints && this.state.public_endpoints.map((endpoint, index) => {
-                        return (<div key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
+                        return (<div style={{margin: "2px", fontSize: "14px"}} key={index}><EndpointCard ns={this.state.ns["_id"]} endpoint={endpoint}/></div>)
                         })}
                         <Link to={`/ns/${this.state.ns["_id"]}/edit/endpoint`}><button type="button" className="btn btn-primary">Create</button></Link>
                         </div>
                     </div>
 
+                </div>
+                <div className="col-sm-8">
                     <div className="card">
-                        <div className="card-header">Recipes <Link to={`/ns/${this.state.ns["_id"]}/recipe`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
+                        <div className="card-header">
+                            Recipes <Link to={`/ns/${this.state.ns["_id"]}/recipe`}><FontAwesomeIcon icon="sign-out-alt"/></Link>
+                        </div>
                         <div className="card-body">
-                        {this.state.recipes && <div>{this.state.recipes.length}</div>}
-                        <Link to={`/ns/${this.state.ns["_id"]}/edit/recipe`}><button type="button" className="btn btn-primary">Create</button></Link>
-
+                        {this.state.recipes && <button type="button" className="btn btn-info">Available <span className="badge badge-light">{this.state.recipes.length}</span></button>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/recipe`}><button type="button" className="btn btn-primary" style={{float: "right"}}>Create</button></Link>
                         </div>
                     </div>
 
                     <div className="card">
                         <div className="card-header">Templates <Link to={`/ns/${this.state.ns["_id"]}/template`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
                         <div className="card-body">
-                        {this.state.templates && <div>{this.state.templates.length}</div>}
-                        <Link to={`/ns/${this.state.ns["_id"]}/edit/template`}><button type="button" className="btn btn-primary">Create</button></Link>
-
+                        {this.state.templates && <button type="button" className="btn btn-info">Available <span className="badge badge-light">{this.state.templates.length}</span></button>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/template`}><button type="button" className="btn btn-primary" style={{float: "right"}}>Create</button></Link>
                         </div>
                     </div>
 
                     <div className="card">
                         <div className="card-header">Applications <Link to={`/ns/${this.state.ns["_id"]}/app`}><FontAwesomeIcon icon="sign-out-alt"/></Link></div>
                         <div className="card-body">
-                        {this.state.apps && <div>{this.state.apps.length}</div>}
-                        <Link to={`/ns/${this.state.ns["_id"]}/edit/app`}><button type="button" className="btn btn-primary">Create</button></Link>
+                        {this.state.apps && <button type="button" className="btn btn-info">Available <span className="badge badge-light">{this.state.apps.length}</span></button>}
+                        <Link to={`/ns/${this.state.ns["_id"]}/edit/app`}><button type="button" className="btn btn-primary" style={{float: "right"}}>Create</button></Link>
+                        </div>
+                    </div>
+
+
+                    <div className="card">
+                        <div className="card-header">Accounting <Link to={"/usage/ns/" + this.state.ns["_id"]}><button className="btn btn-secondary">Usage</button></Link></div>
+                        <div className="card-body">
+                        <h5>Total</h5>
+                        { this.state.acct && this.state.acct.map((acct, index) => (
+                                <table className="table table-sm" key={index}>
+                                    <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></tr></thead>
+                                    <tbody>
+                                {acct.Series && acct.Series.map((serie:any) => (
+                                    <tr key={serie.tags.resource}>
+                                        <td>{serie.tags.resource}</td>
+                                        <td>{serie.tags.kind}</td>
+                                        <td>{serie.values[0][1]}</td>
+                                        <td>{moment.duration(serie.values[0][2]).humanize()}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                                </table>
+                        ))}
+
+                        <h5>This month</h5>
+                        { this.state.acctMonth && this.state.acctMonth.map((acct, index) => (
+                                <table className="table table-sm" key={index}>
+                                    <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></tr></thead>
+                                    <tbody>
+                                {acct.Series && acct.Series.map((serie:any) => (
+                                    <tr key={serie.tags.resource}>
+                                        <td>
+                                        {serie.tags.resource}
+                                        <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "m"]}><SparklinesLine color="blue" /></Sparklines> (max)</div>
+                                        <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "d"]}><SparklinesLine color="orange" /></Sparklines> (s)</div>
+                                        </td>
+                                        <td>{serie.tags.kind}</td>
+                                        <td>{serie.values[0][1]}</td>
+                                        <td>{moment.duration(serie.values[0][2]).humanize()}</td>
+                                        <td>{serie.values[0][3]}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                                </table>
+                        ))}
 
                         </div>
                     </div>
-                </div>
-                <div className="col-sm-12">
-                <div className="card">
-                    <div className="card-header">Accounting <Link to={"/usage/ns/" + this.state.ns["_id"]}><button className="btn btn-secondary">Usage</button></Link></div>
-                    <div className="card-body">
-                    <h5>Total</h5>
-                    { this.state.acct.map((acct, index) => (
-                            <table className="table" key={index}>
-                                <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></tr></thead>
-                                <tbody>
-                            {acct.Series.map((serie:any) => (
-                                <tr key={serie.tags.resource}>
-                                    <td>{serie.tags.resource}</td>
-                                    <td>{serie.tags.kind}</td>
-                                    <td>{serie.values[0][1]}</td>
-                                    <td>{serie.values[0][2]}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                            </table>
-                    ))}
-
-                    <h5>This month</h5>
-                    { this.state.acctMonth.map((acct, index) => (
-                            <table className="table" key={index}>
-                                <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></tr></thead>
-                                <tbody>
-                            {acct.Series.map((serie:any) => (
-                                <tr key={serie.tags.resource}>
-                                    <td>
-                                    {serie.tags.resource}
-                                    <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "m"]}><SparklinesLine color="blue" /></Sparklines> (max)</div>
-                                    <div><Sparklines svgWidth={100} svgHeight={20} margin={5} data={this.state.charts[serie.tags.resource + "d"]}><SparklinesLine color="orange" /></Sparklines> (s)</div>
-                                    </td>
-                                    <td>{serie.tags.kind}</td>
-                                    <td>{serie.values[0][1]}</td>
-                                    <td>{serie.values[0][2]}</td>
-                                    <td>{serie.values[0][3]}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                            </table>
-                )   )}
-
-                    </div>
-                </div>
                 </div>
             </div>
         )
