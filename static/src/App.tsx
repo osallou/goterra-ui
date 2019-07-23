@@ -29,8 +29,8 @@ import {Usage} from './Usage'
 import axios from 'axios'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
-library.add(faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
+import { faExclamation, faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+library.add(faExclamation, faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
 
 
 

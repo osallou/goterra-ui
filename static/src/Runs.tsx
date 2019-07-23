@@ -205,6 +205,76 @@ interface RunCardState {
     endpoints: any
 }
 
+interface RunProgressProps {
+    status: string
+}
+
+class RunProgress extends React.Component<RunProgressProps> {
+
+    getInitClass() {
+        switch (this.props.status)  {
+            case "pending":
+                return "running";
+            default:
+                return "completed"
+        }
+    }
+
+    getProgressClass() {
+        switch (this.props.status)  {
+            case "pending":
+                return "waiting";
+            case "in_progress":
+                return "running"
+            default:
+                return "completed"
+        }
+    }
+
+    getDoneClass() {
+        switch (this.props.status)  {
+            case "pending":
+                return "waiting";
+            case "in_progress":
+                return "waiting"
+            case "success":
+                return "completed"
+            case "failure":
+                return "failed"
+            default:
+                return ""
+        }
+    }
+
+
+    render() {
+        return (
+            <div>
+                <div className="md-stepper-horizontal">
+                    <div className={"md-step active " + this.getInitClass()}>
+                    <div className="md-step-circle"><span>1</span></div>
+                    <div className="md-step-title">{ this.props.status === "pending" ? "Waiting to schedule": " Scheduled"}</div>
+                    <div className="md-step-bar-left"></div>
+                    <div className="md-step-bar-right"></div>
+                    </div>
+                    <div className={"md-step active " + this.getProgressClass()}>
+                    <div className="md-step-circle"><span>2</span></div>
+                    <div className="md-step-title">{this.props.status.indexOf("deploy") > -1 ? "Deploying" : "Destroying"}</div>
+                    <div className="md-step-bar-left"></div>
+                    <div className="md-step-bar-right"></div>
+                    </div>
+                    <div className={"md-step active " + this.getDoneClass()}>
+                    <div className="md-step-circle"><span>{this.props.status === "failure" ? <FontAwesomeIcon icon="exclamation"/> : 3}</span></div>
+                    <div className="md-step-title">{this.props.status.indexOf("success") > -1 ? "Done" : this.getDoneClass() === "waiting" ? "Waiting": "Failed"}</div>
+                    <div className="md-step-bar-left"></div>
+                    <div className="md-step-bar-right"></div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+}
+
   class RunCard extends React.Component<RunCardProps, RunCardState> {
 
     constructor(props:RunCardProps) {
@@ -218,6 +288,10 @@ interface RunCardState {
         this.getStoreInfo = this.getStoreInfo.bind(this)
         this.stop = this.stop.bind(this)
         this.getEndpointName = this.getEndpointName.bind(this)
+    }
+
+    getMainStatus() {
+        return this.props.run.status.replace("destroy_", "").replace("deploy_", "")
     }
 
     stop() {
@@ -288,6 +362,9 @@ interface RunCardState {
                 <div className="card-body">
                 <form onSubmit={e => { e.preventDefault(); }}>
                         { this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+                        <div className="row">
+                            <RunProgress status={this.getMainStatus()}/>
+                        </div>
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
                             <input className="form-control" name="name" readOnly value={this.props.run.name}/>
