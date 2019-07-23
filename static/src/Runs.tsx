@@ -1,11 +1,17 @@
 import React from "react";
 import { RouteComponentProps, Link } from 'react-router-dom'
-
+import * as moment from 'moment';
 import axios from "axios"
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {Auth} from './Auth/Auth'
 import {NameSpaceService} from './Namespace'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+
+import './Runs.css'
+
 interface Run {
 
 }
@@ -163,20 +169,24 @@ interface RunsState {
     msg: string
 }
 
+function addZeroBefore(n:number) {
+    return (n < 10 ? '0' : '') + n;
+  }
+
 function timeConverter(UNIX_timestamp:number){
     if (UNIX_timestamp === undefined || UNIX_timestamp === 0) {
         return ""
     }
     try {
         var a = new Date(UNIX_timestamp * 1000);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        // var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         var year = a.getFullYear();
-        var month = months[a.getMonth()];
+        var month = a.getMonth();
         var date = a.getDate();
         var hour = a.getHours();
         var min = a.getMinutes();
         var sec = a.getSeconds();
-        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        var time = addZeroBefore(date)+ '/' + addZeroBefore(month) + '/' + year + ' ' + addZeroBefore(hour) + ':' + addZeroBefore(min) + ':' + addZeroBefore(sec) ;
         return time;
     } catch(err) {
         return ""
@@ -273,7 +283,7 @@ interface RunCardState {
 
     render() {
         return (
-            <div className="card">
+            <div className="card run">
                <div className="card-header">{this.props.run.id}</div>
                 <div className="card-body">
                 <form onSubmit={e => { e.preventDefault(); }}>
@@ -403,6 +413,19 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         }
     }
 
+    getClassStatus(status:string) {
+        if (status.indexOf("success")) {
+            return "success"
+        }
+        if (status.indexOf("failure")) {
+            return "failure"
+        }
+        if (status.indexOf("pending")) {
+            return "pending"
+        }
+        return ""
+    }
+
     render() {
         return (
             <div className="row">
@@ -416,21 +439,26 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                 </div>
                 <div className="col-sm-12">
                     <div className="row">
-                        <div className="col-sm-6">
-                            <table className="table">
+                        <div className="col-sm-3">
+                            <table className="table runs">
                                 <tbody>
                                 {this.state.runs.map((run:any, _:number) => {
                                     return (<tr  key={run["id"]}>
-                                    <td>{timeConverter(run["start"])}</td>
-                                    <td onClick={this.selectRun(run)}>{run["id"]}</td>
-                                    <td>{run["status"]}</td>
+                                    <td onClick={this.selectRun(run)}>
+                                        <p><small>{timeConverter(run["start"])} [{run["UID"]} - #{run["id"].slice(-5)}]</small></p>
+                                        <p>{run["name"]} <span className={run["status"]}>{run["status"]}</span></p>
+                                        { run["end"] > 0 && <div>
+                                        <p><FontAwesomeIcon icon="clock"/> Duration: {moment.duration(run.end - run.start).humanize()}</p>
+                                        <p><FontAwesomeIcon icon="calendar-alt"/> Finished: {moment.duration(new Date().getTime() - (run.end * 1000)).humanize()}</p>
+                                        </div>}
+                                    </td>
                                     </tr>)
                                 }
                                 )}
                                 </tbody>
                             </table>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-9">
                         {this.state.run && <RunCard run={this.state.run}/>}
                         </div>
                     </div>

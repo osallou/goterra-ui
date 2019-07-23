@@ -1,0 +1,45 @@
+.runs {
+    font-size: 14px;
+    line-height: 0.5em;
+}
+
+.run *{
+    font-size: 14px !important;
+}
+
+.deploy_pending{
+    color: lightslategray;
+}
+
+
+.deploy_progress{
+    color: #cdb62c;
+}
+
+.deploy_success{
+    color: #39aa56;
+}
+
+.deploy_failure{
+    color: #db4545;
+}
+
+.destroy_pending{
+    color: lightslategray;
+}
+
+.destroy_progress{
+    color: #cdb62c;
+}
+
+.destroy_success{
+    color: #39aa56;
+}
+
+.destroy_failure{
+    color: #db4545;
+}
+
+table tbody td {
+    text-align: left;
+}

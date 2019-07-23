@@ -354,7 +354,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                 </div>
                 <div className="col-sm-12">
                 <div className="card">
-                    <div className="card-header">Accounting</div>
+                    <div className="card-header">Accounting <Link to={"/usage/ns/" + this.state.ns["_id"]}><button className="btn btn-secondary">Usage</button></Link></div>
                     <div className="card-body">
                     <h5>Total</h5>
                     { this.state.acct.map((acct, index) => (

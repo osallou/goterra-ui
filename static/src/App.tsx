@@ -22,14 +22,15 @@ import {Api} from './Api'
 import {RunApp} from './Run'
 import {UserSpace} from './User'
 import {About} from './About'
+import {Usage} from './Usage'
 
 
 
 import axios from 'axios'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
-library.add(faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
+import { faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare,faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+library.add(faCalendarAlt, faClock, faEye, faLock, faLockOpen, faSignOutAlt, faUser, faPlusSquare, faArrowCircleRight, faArrowCircleLeft, faToolbox, faCog, faCheck, faTrashAlt)
 
 
 
@@ -149,6 +150,11 @@ class App extends React.Component<AppProps, AppState> {
             <li className="nav-item">
               <Link className="nav-link" to="/run">Runs</Link>
             </li>
+            { this.state.isLogged && this.state.user !== null && this.state.user.admin &&
+            <li className="nav-item">
+              <Link className="nav-link" to="/usage">Usage</Link>
+            </li>
+            }
             <li className="nav-item dropdown">
               <div className="nav-link dropdown-toggle" data-toggle="dropdown"  role="button" aria-haspopup="true" aria-expanded="false">API</div>
               <div className="dropdown-menu">
@@ -209,6 +215,8 @@ class App extends React.Component<AppProps, AppState> {
         />
         <Route exact path='/auth/oidc/google/callback'
           render={(props) => <GoogleAuth {...props} onLogin={this.onLogin}/>}/>
+        <Route exact path='/usage' component={Usage}/>
+        <Route exact path='/usage/ns/:nsid' component={Usage}/>
       </Switch>
       {this.state.fireRedirect && (<Redirect to={'/'}/>)}
     </div>
