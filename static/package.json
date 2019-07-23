@@ -29,7 +29,7 @@
     "react-sparklines": "^1.7.0",
     "react-vis": "^1.11.7",
     "resolve-url-loader": "^3.1.0",
-    "swagger-ui-react": "^3.22.3",
+    "swagger-ui-react": "^3.23.0",
     "typescript": "3.5.1"
   },
   "scripts": {
