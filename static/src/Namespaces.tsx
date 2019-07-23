@@ -19,7 +19,7 @@ interface NameSpaceProps {
     key: string
 }
 
-class NameSpaceService {
+export class NameSpaceService {
 
     static config() : Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""

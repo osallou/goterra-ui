@@ -32,6 +32,15 @@ var ConfigHandler = func(w http.ResponseWriter, r *http.Request) {
 	resp := make(map[string]interface{})
 	resp["url"] = config.URL
 	resp["acl_user_createns"] = config.ACL.AllowUserCreateNS
+	resp["oidc_google"] = false
+	if os.Getenv("GOOGLE_OAUTH2") == "1" {
+		resp["oidc_google"] = true
+	}
+	resp["oidc_aai"] = false
+	if os.Getenv("AAI_OAUTH2") == "1" {
+		resp["oidc_aai"] = true
+	}
+
 	json.NewEncoder(w).Encode(resp)
 	return
 }

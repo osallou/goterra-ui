@@ -6,6 +6,8 @@ import './App.css';
 
 import {Auth, Login, Logout, User} from './Auth/Auth'
 import {GoogleAuth} from './Auth/GoogleAuth'
+import {AAIAuth} from './Auth/AAIAuth'
+
 import {NameSpaces} from './Namespaces'
 import {NameSpace} from './Namespace'
 import {EndpointSpace} from './Endpoint'
@@ -215,6 +217,8 @@ class App extends React.Component<AppProps, AppState> {
         />
         <Route exact path='/auth/oidc/google/callback'
           render={(props) => <GoogleAuth {...props} onLogin={this.onLogin}/>}/>
+        <Route exact path='/auth/oidc/aai/callback'
+          render={(props) => <AAIAuth {...props} onLogin={this.onLogin}/>}/>
         <Route exact path='/usage' component={Usage}/>
         <Route exact path='/usage/ns/:nsid' component={Usage}/>
       </Switch>

@@ -3,7 +3,7 @@ import React from "react";
 import { Redirect } from 'react-router-dom'
 import axios from 'axios'
 
-
+import {NameSpaceService} from '../Namespaces'
 
 export interface User {
     uid:string
@@ -69,6 +69,8 @@ type LoginState = {
     errors: string
     apiKey: string
     msg: string
+    googleOIDC: boolean
+    AAIOIDC: boolean
 }
 
 
@@ -79,13 +81,34 @@ export class Login extends React.Component<LoginProps,LoginState> {
             errors: "",
             onLogin: props.onLogin || null,
             apiKey: "",
-            msg: ""
+            msg: "",
+            googleOIDC: false,
+            AAIOIDC: false
   
         }
         this.oidcGoogle = this.oidcGoogle.bind(this)
+        this.oidcAAI = this.oidcAAI.bind(this)
+
         this.onApiKeyChange = this.onApiKeyChange.bind(this)
         this.onLogin = this.onLogin.bind(this)
+
         // this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        let ctx = this
+        NameSpaceService.config().then(config => {
+            let aai = false
+            let google = false
+            if(config.oidc_aai) {
+                aai = true
+            }
+            if(config.oidc_google) {
+                google = true
+            }
+            ctx.setState({googleOIDC: google, AAIOIDC: aai})
+            
+        })
     }
 
     onApiKeyChange(event:React.FormEvent<HTMLInputElement>) {
@@ -122,6 +145,12 @@ export class Login extends React.Component<LoginProps,LoginState> {
         window.location.href = root + "/auth/oidc/google"
     }
 
+    oidcAAI() {
+        //{process.env.REACT_APP_GOT_BASENAME} redirect
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        window.location.href = root + "/auth/oidc/aai"
+    }
+
     render() {
         return (
             <div>
@@ -130,7 +159,9 @@ export class Login extends React.Component<LoginProps,LoginState> {
                 <input name="apikey" value={this.state.apiKey} onChange={this.onApiKeyChange} placeholder="api key"></input>
                 <button onClick={this.onLogin} className="btn btn-primary">Log in</button>
 
-                <button onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>
+                { this.state.googleOIDC && <button onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>}
+
+                { this.state.AAIOIDC && <button onClick={this.oidcAAI} className="btn btn-primary">Log with Elixir AAI</button>}
             </div>)
     }
 }
