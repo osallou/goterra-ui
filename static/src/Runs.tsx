@@ -207,6 +207,7 @@ interface RunCardState {
 
 interface RunProgressProps {
     status: string
+    action: string
 }
 
 class RunProgress extends React.Component<RunProgressProps> {
@@ -259,7 +260,7 @@ class RunProgress extends React.Component<RunProgressProps> {
                     </div>
                     <div className={"md-step active " + this.getProgressClass()}>
                     <div className="md-step-circle"><span>2</span></div>
-                    <div className="md-step-title">{this.props.status.indexOf("deploy") > -1 ? "Deploying" : "Destroying"}</div>
+                    <div className="md-step-title">{this.props.action.indexOf("deploy") > -1 ? "Deploying" : "Destroying"}</div>
                     <div className="md-step-bar-left"></div>
                     <div className="md-step-bar-right"></div>
                     </div>
@@ -363,7 +364,7 @@ class RunProgress extends React.Component<RunProgressProps> {
                 <form onSubmit={e => { e.preventDefault(); }}>
                         { this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                         <div className="row">
-                            <RunProgress status={this.getMainStatus()}/>
+                            <RunProgress action={this.props.run.status} status={this.getMainStatus()}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
@@ -458,6 +459,7 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         }
         this.selectRun = this.selectRun.bind(this)
         this.refresh = this.refresh.bind(this)
+        this.getDuration = this.getDuration.bind(this)
     }
 
     componentDidMount() {
@@ -503,6 +505,16 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         return ""
     }
 
+    getDuration(run:any):string {
+        // console.log("run duration", run.start, run.end, moment.duration(run.end - run.start))
+        if (run.end == 0) {
+            return moment.duration(new Date().getTime() - (run.start * 1000)).humanize()
+        }
+        else {
+            return moment.duration((run.end - run.start)*1000).humanize()
+        }
+    }
+
     render() {
         return (
             <div className="row">
@@ -524,10 +536,12 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                                     <td onClick={this.selectRun(run)}>
                                         <p><small>{timeConverter(run["start"])} [{run["UID"]} - #{run["id"].slice(-5)}]</small></p>
                                         <p>{run["name"]} <span className={run["status"]}>{run["status"]}</span></p>
-                                        { run["end"] > 0 && <div>
-                                        <p><FontAwesomeIcon icon="clock"/> Duration: {moment.duration(run.end - run.start).humanize()}</p>
+                                        <div>
+                                        <p><FontAwesomeIcon icon="clock"/> Duration: {this.getDuration(run)}</p>
+                                        { run["end"] > 0 &&
                                         <p><FontAwesomeIcon icon="calendar-alt"/> Finished: {moment.duration(new Date().getTime() - (run.end * 1000)).humanize()}</p>
-                                        </div>}
+                                        }
+                                        </div>
                                     </td>
                                     </tr>)
                                 }

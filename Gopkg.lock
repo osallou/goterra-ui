@@ -10,12 +10,12 @@
   revision = "ec5e00d3c878b2a97bbe0884ef45ffd1b4f669f5"
 
 [[projects]]
-  digest = "1:664d37ea261f0fc73dd17f4a1f5f46d01fbb0b0d75f6375af064824424109b7d"
+  digest = "1:b117faf01abdbdadd7b8ceeae74cd1369c1b073fef41aee8b674c9d704a54c16"
   name = "github.com/gorilla/handlers"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
-  version = "v1.4.0"
+  revision = "8a3748addc242fc560bd6d4ff28b0374c010b1b4"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
@@ -91,11 +91,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:362a0b1f993bfddad4149429a3f45de345edd334cc2cd05ca41dc2a19c0edc58"
+  digest = "1:213a8fd4ccf5561edde06d47e7878706e0846d7adca2ca911899afe4a6e4a03d"
   name = "github.com/osallou/goterra-lib"
   packages = ["lib/config"]
   pruneopts = "UT"
-  revision = "e453ffebcb7f51f9e7658e4ba9c35860bf8cc0f1"
+  revision = "a59a669f2ca8e804d32b8ffcf5d7223612d73f5d"
 
 [[projects]]
   digest = "1:b0c25f00bad20d783d259af2af8666969e2fc343fa0dc9efe52936bbd67fb758"

@@ -284,7 +284,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
     render() {
         return (
             <div className="card">
-                <div className="card-header">New run</div>
+                <div className="card-header">New run [{this.state.app && <span>{this.state.app.name}</span>}]</div>
                 <div className="card-body">
                 {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                 <form className="form"  onSubmit={e => { e.preventDefault(); }}>
