@@ -525,7 +525,7 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
 
     getDuration(run:any):string {
         // console.log("run duration", run.start, run.end, moment.duration(run.end - run.start))
-        if (run.end == 0) {
+        if (run.end === 0) {
             return moment.duration(new Date().getTime() - (run.start * 1000)).humanize()
         }
         else {
@@ -548,14 +548,14 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                     <div className="row">
                         <div className="col-sm-3">
                             <div className="form-check">
-                                <input onClick={this.onChangeRunningOnly} type="checkbox" className="form-check-input" id="runningOnly" checked={this.state.runningOnly}/>
+                                <input onChange={this.onChangeRunningOnly} type="checkbox" className="form-check-input" id="runningOnly" checked={this.state.runningOnly}/>
                                 <label className="form-check-label" htmlFor="runningOnly">Running only</label>
                             </div>
                             <table className="table runs">
                                 <tbody>
                                 {this.state.runs.map((run:any, _:number) => {
                                     if (this.state.runningOnly && run.end > 0) {
-                                        return
+                                        return null
                                     }
                                     return (<tr  key={run["id"]}>
                                     <td onClick={this.selectRun(run)}>

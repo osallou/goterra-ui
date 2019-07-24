@@ -98,7 +98,6 @@ class App extends React.Component<AppProps, AppState> {
     this.resetMessage = this.resetMessage.bind(this);
 
     Auth.init();
- 
   }
 
   componentDidMount() {
@@ -109,9 +108,10 @@ class App extends React.Component<AppProps, AppState> {
       axios.get(root + "/auth/api")
       .then(function (response) {
           // handle success
-          ctx.setState({fireRedirect: true})
+          //ctx.setState({fireRedirect: true})
           let user = Auth.login(response.data.user, response.data.token)
-          ctx.onLogin(user)
+          ctx.setState({isLogged: true, user: user, fireRedirect: false})
+          //ctx.onLogin(user)
       })
       .catch(function (error: any) {
           // handle error
