@@ -167,6 +167,7 @@ interface RunsState {
     runs: any[]
     run: any | null
     msg: string
+    runningOnly: boolean
 }
 
 function addZeroBefore(n:number) {
@@ -458,11 +459,13 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         this.state = {
             runs: [],
             run: null,
-            msg: ""
+            msg: "",
+            runningOnly: false
         }
         this.selectRun = this.selectRun.bind(this)
         this.refresh = this.refresh.bind(this)
         this.getDuration = this.getDuration.bind(this)
+        this.onChangeRunningOnly = this.onChangeRunningOnly.bind(this)
     }
 
     componentDidMount() {
@@ -508,6 +511,18 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
         return ""
     }
 
+    onChangeRunningOnly(event:React.FormEvent<HTMLInputElement>) {
+        if (event.currentTarget.value != null) {
+            let runningOnly = this.state.runningOnly
+            if (event.currentTarget.checked) {
+                runningOnly = true
+            } else {
+                runningOnly = false
+            }
+            this.setState({runningOnly: runningOnly})
+        }
+    }
+
     getDuration(run:any):string {
         // console.log("run duration", run.start, run.end, moment.duration(run.end - run.start))
         if (run.end == 0) {
@@ -532,9 +547,16 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
                 <div className="col-sm-12">
                     <div className="row">
                         <div className="col-sm-3">
+                            <div className="form-check">
+                                <input onClick={this.onChangeRunningOnly} type="checkbox" className="form-check-input" id="runningOnly" checked={this.state.runningOnly}/>
+                                <label className="form-check-label" htmlFor="runningOnly">Running only</label>
+                            </div>
                             <table className="table runs">
                                 <tbody>
                                 {this.state.runs.map((run:any, _:number) => {
+                                    if (this.state.runningOnly && run.end > 0) {
+                                        return
+                                    }
                                     return (<tr  key={run["id"]}>
                                     <td onClick={this.selectRun(run)}>
                                         <p><small>{timeConverter(run["start"])} [{run["UID"]} - #{run["id"].slice(-5)}]</small></p>

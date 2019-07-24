@@ -133,38 +133,40 @@ export class UserSpace extends React.Component<RouteComponentProps<MatchParams>,
     render() {
         return (
             <div className="row">
-                <form className="col-sm-12" onSubmit={e => { e.preventDefault(); }}>
-                {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
-                <div className="form-group row">
-                    <label htmlFor="uid" >ID</label>
-                    <input className="form-control" name="uid" readOnly value={this.state.user.uid}/>
+                <div className="col-sm-12">
+                    <form onSubmit={e => { e.preventDefault(); }}>
+                    {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+                    <div className="form-group row">
+                        <label htmlFor="uid" >ID</label>
+                        <input className="form-control" name="uid" readOnly value={this.state.user.uid}/>
+                    </div>
+                    <div className="form-group row">
+                        <label htmlFor="apikey">API Key</label>
+                        <input className="form-control" name="apikey" onChange={this.onChange} value={this.state.user.apikey}/>
+                    </div>
+                    <div className="form-group row">
+                        <label htmlFor="email">Email</label>
+                        <input className="form-control" name="email" onChange={this.onChange} value={this.state.user.email}/>
+                    </div>
+                    <div className="form-group row">
+                        <label htmlFor="admin">Admin?</label>
+                        <input className="form-control" name="admin" readOnly value={this.state.user.admin}/>
+                    </div>
+                    <div className="form-group row">
+                        <label htmlFor="super">Super user?</label>
+                        <input className="form-control" name="super" readOnly value={this.state.user.super}/>
+                    </div>
+                    <div className="form-group row">
+                        <label htmlFor="pub_key">SSH public key</label>
+                        <input className="form-control" name="pub_key" onChange={this.onChange} value={this.state.user.pub_key}/>
+                    </div>
+                    <div className="form-group row">
+                        <button type="button" className="btn btn-primary" onClick={this.onUpdate}>Update</button>
+                    </div>
+                    {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
+            
+                    </form>
                 </div>
-                <div className="form-group row">
-                    <label htmlFor="apikey">API Key</label>
-                    <input className="form-control" name="apikey" onChange={this.onChange} value={this.state.user.apikey}/>
-                </div>
-                <div className="form-group row">
-                    <label htmlFor="email">Email</label>
-                    <input className="form-control" name="email" onChange={this.onChange} value={this.state.user.email}/>
-                </div>
-                <div className="form-group row">
-                    <label htmlFor="admin">Admin?</label>
-                    <input className="form-control" name="admin" readOnly value={this.state.user.admin}/>
-                </div>
-                <div className="form-group row">
-                    <label htmlFor="super">Super user?</label>
-                    <input className="form-control" name="super" readOnly value={this.state.user.super}/>
-                </div>
-                <div className="form-group row">
-                    <label htmlFor="pub_key">SSH public key</label>
-                    <input className="form-control" name="pub_key" onChange={this.onChange} value={this.state.user.pub_key}/>
-                </div>
-                <div className="form-group row">
-                    <button type="button" className="btn btn-primary" onClick={this.onUpdate}>Update</button>
-                </div>
-                {this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
-           
-                </form>
             </div>
         )
     }
