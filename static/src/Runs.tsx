@@ -430,6 +430,9 @@ class RunProgress extends React.Component<RunProgressProps> {
                             <input className="form-control" name={key} readOnly value={this.state.status[key]}/>
                         </div>                           
                         ))}
+                        {(this.state.status === null &&  this.props.run.status === "deploy_success") && <div className="form-group row">
+                            <span>Recipes waiting for execution</span>
+                        </div>}
                         <h5>Store information</h5>
                         <button type="button" className="btn btn-secondary" onClick={this.getStoreInfo}>Show</button>
                         {this.state.store && Object.keys(this.state.store).map((key, index) => (

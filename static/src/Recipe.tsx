@@ -118,7 +118,7 @@ class RecipeSmallCard extends React.Component<RecipeSmallCardProps> {
                 <div className="card-body">
                     <div>{this.props.recipe.description}</div>
                     <div>Version: {this.props.recipe.version}</div>
-                    <div>{timeConverter(this.props.recipe.ts)})</div>
+                    <div>{timeConverter(this.props.recipe.ts)}</div>
                     <div>
                     { this.props.recipe.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.recipe.public === false && <FontAwesomeIcon icon="lock"/>}
