@@ -4,6 +4,7 @@ import { RouteComponentProps, Link } from 'react-router-dom'
 import axios from "axios"
 
 // import {Auth} from './Auth/Auth'
+import{timeConverter} from './Tools'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -194,8 +195,8 @@ class AppSmallCard extends React.Component<AppSmallCardProps> {
                     {this.props.app.description}
                     { this.props.app.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.app.public === false && <FontAwesomeIcon icon="lock"/>}
-                    <div><small>ID: {this.props.app.id}</small></div>
-                    <div>Version: {this.props.app.version}</div>
+                    <div><small>Version: {this.props.app.version}</small></div>
+                    <div><small>{timeConverter(this.props.app.ts)}</small></div>
                     <div><Link to={`/ns/${this.props.ns}/run/app/${this.props.app.id}`}><button type="button" className="btn btn-primary">Run</button></Link></div>
                 </div>
                 

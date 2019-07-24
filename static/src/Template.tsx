@@ -117,8 +117,8 @@ class TemplateSmallCard extends React.Component<TemplateSmallCardProps> {
                <div className="card-header" onClick={this.props.onPress(this.props.template)}>{this.props.template.name}</div>
                 <div className="card-body">
                     <div>{this.props.template.description}</div>
-                    <div>Version: {this.props.template.version}</div>
-                    <div>{timeConverter(this.props.template.ts)}</div>
+                    <div><small>Version: {this.props.template.version}</small></div>
+                    <div><small>{timeConverter(this.props.template.ts)}</small></div>
                     <div>
                     { this.props.template.public === true && <FontAwesomeIcon icon="lock-open"/>}
                     { this.props.template.public === false && <FontAwesomeIcon icon="lock"/>}
