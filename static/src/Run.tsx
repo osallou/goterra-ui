@@ -212,8 +212,16 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
 
 
         AppService.getInputs(this.props.match.params.nsid, this.props.match.params.appid).then(app => {
-            ctx.setState({appInputs: app})
+            let run = {...this.state.run}
+            for(let input in app.recipes) {
+                run.inputs[input] = ""
+            }
+            for(let input in app.template) {
+                run.inputs[input] = ""
+            }
+            ctx.setState({appInputs: app, run: run})
         }).catch(error => {
+            console.log(error)
             ctx.setState({msg: error.response.data.message || error.message})
         })
 
