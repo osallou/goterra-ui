@@ -411,13 +411,21 @@ class RunProgress extends React.Component<RunProgressProps> {
 
     render() {
         return (
-            <div className="card run">
+            <div className="card">
                <div className="card-header">{this.props.run.id}</div>
                 <div className="card-body">
-                <form onSubmit={e => { e.preventDefault(); }}>
+                <form className="run" onSubmit={e => { e.preventDefault(); }}>
                         { this.state.msg && <div className="alert alert-warning">{this.state.msg}</div>}
                         <div className="row">
-                            <RunProgress action={this.props.run.status} status={this.getMainStatus()}/>
+                            <div className="col-sm-6">
+                                <RunProgress action={this.props.run.status} status={this.getMainStatus()}/>
+                            </div>
+                            <div className="col-sm-6">
+                            
+                            <div style={{padding: "24px"}}>
+                            { this.props.run.status !== "destroy_success" && <span data-toggle="tooltip" data-placement="top" title="stop deployment" onClick={this.requestRunActionConfirm}><FontAwesomeIcon size="2x" icon="stop-circle"/></span>}
+                            </div>
+                            </div>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="name">Name</label>
@@ -430,7 +438,6 @@ class RunProgress extends React.Component<RunProgressProps> {
                         <div className="form-group row">
                             <label htmlFor="status">Status</label>
                             <input className="form-control" name="status" readOnly value={this.props.run.status}/>
-                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger" onClick={this.requestRunActionConfirm}>stop</button>}
                         </div>
                         <div className="form-group row">
                             <label htmlFor="start">Start</label>

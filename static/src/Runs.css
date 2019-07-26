@@ -3,7 +3,7 @@
     line-height: 1em;
 }
 
-.run *{
+.run .form-group{
     font-size: 14px !important;
 }
 
