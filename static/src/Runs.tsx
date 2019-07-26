@@ -2,10 +2,13 @@ import React from "react";
 import { RouteComponentProps, Link } from 'react-router-dom'
 import * as moment from 'moment';
 import axios from "axios"
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import {Auth} from './Auth/Auth'
 import {NameSpaceService} from './Namespace'
+import {RunActionDialog} from './RunActionDialog'
+import {EndpointService} from './Endpoint'
+import {AppService} from './Apps'
+
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -77,13 +80,14 @@ export class RunService {
         })
     }
 
-    static stop(ns: string, run:string): Promise<any> {
+    static stop(ns: string, run:any): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, _) => {
-            axios.delete(root + "/deploy/ns/" + ns + "/run/" + run, {
+            axios.delete(root + "/deploy/ns/" + ns + "/run/" + run.id, {
                 headers: {
                     "Authorization": "Bearer " + Auth.authToken
-                }
+                },
+                data: run
             })
             .then(function (response) {
                 // handle success
@@ -167,7 +171,7 @@ interface RunsState {
     runs: any[]
     run: any | null
     msg: string
-    runningOnly: boolean
+    runningOnly: boolean,
 }
 
 function addZeroBefore(n:number) {
@@ -204,6 +208,8 @@ interface RunCardState {
     status: any | null
     msg: string
     endpoints: any
+    confirmRunAction: boolean
+    hasSecret: boolean
 }
 
 interface RunProgressProps {
@@ -285,11 +291,33 @@ class RunProgress extends React.Component<RunProgressProps> {
             store: null,
             status: null,
             msg: "",
-            endpoints: {}
+            endpoints: {},
+            confirmRunAction: false,
+            hasSecret: false
         }
         this.getStoreInfo = this.getStoreInfo.bind(this)
         this.stop = this.stop.bind(this)
         this.getEndpointName = this.getEndpointName.bind(this)
+
+        this.onRunActionConfirm = this.onRunActionConfirm.bind(this)
+        this.onRunActionCancel = this.onRunActionCancel.bind(this)
+        this.requestRunActionConfirm = this.requestRunActionConfirm.bind(this)
+    }
+
+    requestRunActionConfirm() {
+        this.setState({confirmRunAction: true})
+    }
+
+    onRunActionCancel() {
+        this.setState({confirmRunAction: false})
+    }
+    onRunActionConfirm(username:string, password:string) {
+        if(!this.state.hasSecret) {
+        this.props.run.secretinputs["user_name"] = username
+        this.props.run.secretinputs["password"] = password
+        }
+        this.setState({confirmRunAction: false})
+        this.stop()
     }
 
     getMainStatus() {
@@ -298,7 +326,9 @@ class RunProgress extends React.Component<RunProgressProps> {
 
     stop() {
         let ctx = this
-        RunService.stop(this.props.run.namespace, this.props.run.id).then(res => {
+        let run = {...this.props.run}
+        run.outputs = ""
+        RunService.stop(this.props.run.namespace, run).then(res => {
             ctx.setState({msg: "Stop request sent"})
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
@@ -324,7 +354,18 @@ class RunProgress extends React.Component<RunProgressProps> {
                 let endpoint = endpoints[i]
                 ns_endpoints[endpoint.id] = endpoint
             }
-            ctx.setState({endpoints: ns_endpoints})
+
+            AppService.public_endpoints().then(public_endpoints => {
+                for(let i=0;i<public_endpoints.length;i++) {
+                    let endpoint = public_endpoints[i]
+                    ns_endpoints[endpoint.id] = endpoint
+                } 
+                ctx.setState({endpoints: ns_endpoints})
+            }).catch(_ => {
+                console.log("failed to fetch public endpoints")
+                ctx.setState({endpoints: ns_endpoints})
+            })
+
         }).catch(error => {
             ctx.setState({msg: error.response.data.message || error.message})
         })
@@ -334,6 +375,11 @@ class RunProgress extends React.Component<RunProgressProps> {
                 ctx.setState({status: depl})
             })
         }
+        EndpointService.hasSecret(this.props.run.namespace, this.props.run.endpoint).then(_ => {
+            ctx.setState({hasSecret: true})
+        }).catch(_ => {
+            ctx.setState({hasSecret: false})
+        })
     }
 
     componentDidUpdate(prevProps: RunCardProps, _: RunCardState) {
@@ -351,6 +397,12 @@ class RunProgress extends React.Component<RunProgressProps> {
                 //console.log("depl statuses", depl)
             })
         }
+
+        EndpointService.hasSecret(this.props.run.namespace, this.props.run.endpoint).then(_ => {
+            ctx.setState({hasSecret: true})
+        }).catch(_ => {
+            ctx.setState({hasSecret: false})
+        })
     }
 
     getEndpointName(id: string):string {
@@ -378,7 +430,7 @@ class RunProgress extends React.Component<RunProgressProps> {
                         <div className="form-group row">
                             <label htmlFor="status">Status</label>
                             <input className="form-control" name="status" readOnly value={this.props.run.status}/>
-                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger" onClick={this.stop}>stop</button>}
+                            { this.props.run.status !== "destroy_success" && <button type="button" className="btn btn-danger" onClick={this.requestRunActionConfirm}>stop</button>}
                         </div>
                         <div className="form-group row">
                             <label htmlFor="start">Start</label>
@@ -443,7 +495,8 @@ class RunProgress extends React.Component<RunProgressProps> {
                         { key.indexOf("_") === 0 && <textarea rows={20} className="form-control" name={key} readOnly value={this.state.store[key]}/> }
                         </div>                           
                         ))}
-                </form>                  
+                </form>
+                <RunActionDialog hasSecret={this.state.hasSecret} show={this.state.confirmRunAction} data={null} msg="" title="Confirm run deletion" onCancel={this.onRunActionCancel} onConfirm={this.onRunActionConfirm}/>                 
                 </div>
                 
             </div>
@@ -460,12 +513,13 @@ export class Runs extends React.Component<RouteComponentProps<{}>, RunsState> {
             runs: [],
             run: null,
             msg: "",
-            runningOnly: false
+            runningOnly: false,
         }
         this.selectRun = this.selectRun.bind(this)
         this.refresh = this.refresh.bind(this)
         this.getDuration = this.getDuration.bind(this)
         this.onChangeRunningOnly = this.onChangeRunningOnly.bind(this)
+
     }
 
     componentDidMount() {

@@ -10,6 +10,8 @@ import { NameSpaceService } from "./Namespace";
 import {RunService} from './Runs'
 import {TemplateService} from './Template'
 
+import {RunActionDialog} from './RunActionDialog'
+
 interface MatchParams {
     nsid: string
     appid: string
@@ -31,6 +33,7 @@ interface RunState {
     endpoint: string
     endpointName: string
     hasSecret: boolean
+    confirmRun: boolean
 
 }
 
@@ -82,7 +85,8 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             inputValue: "",
             endpoint: "",
             endpointName: "",
-            hasSecret: false       
+            hasSecret: false,
+            confirmRun: false      
         }
 
         this.onEndpointChange = this.onEndpointChange.bind(this)
@@ -90,6 +94,25 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
         this.onChange = this.onChange.bind(this)
         this.onChangeInfo = this.onChangeInfo.bind(this)
         this.onSelectChange = this.onSelectChange.bind(this)
+        this.askRunConfirm = this.askRunConfirm.bind(this)
+        this.onRunConfirm = this.onRunConfirm.bind(this)
+        this.onRunCancel = this.onRunCancel.bind(this)
+    }
+
+    askRunConfirm() {
+        this.setState({confirmRun: true})
+    }
+    onRunCancel() {
+        this.setState({confirmRun: false})
+    }
+    onRunConfirm(username:string, password:string) {
+        let run = {...this.state.run}
+        if(!this.state.hasSecret) {
+            run.secretinputs["user_name"] = username
+            run.secretinputs["password"] = password
+        }
+        this.setState({run: run, confirmRun: false})
+        this.onRun()
     }
 
     onRun() {
@@ -365,10 +388,11 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                         </div>
                     ))}
                     
-                    {this.state.hasSecret && <button type="button" className="btn btn-primary" onClick={this.onRun}>Run</button>}
-                    
+                    <button type="button" className="btn btn-primary" onClick={this.askRunConfirm}>Run</button>
                 </form>
                 </div>
+                <RunActionDialog hasSecret={this.state.hasSecret} show={this.state.confirmRun} data={this.state.run.inputs} msg="" title="Confirm run execution" onCancel={this.onRunCancel} onConfirm={this.onRunConfirm}/>
+
             </div>
         )
     }

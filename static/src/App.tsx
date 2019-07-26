@@ -64,7 +64,6 @@ class Home extends React.Component {
         <div className="card-header">Welcome to goterra</div>
       <div className="card-body">
           <span><a href="https://github.com/osallou/goterra">More info on goterra</a></span>
-          <div>TODO explain</div>
       </div>
   </div>
     )
