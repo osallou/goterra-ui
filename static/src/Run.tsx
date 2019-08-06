@@ -224,9 +224,25 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                 })
 
             }
-            console.log("defaults", defaults)
+
+            delete defaults["user_id"]
+            delete defaults["project_id"]
+            delete defaults["project_name"]
+            delete defaults["keypair"]
+
+            EndpointService.getDefaults(run.namespace, run.endpoint).then(endpointDefaults => {
+                Object.keys(endpointDefaults).forEach((key, value) => {
+                    defaults[key] = value
+                })
+                this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName, defaults: defaults})
+                console.log("defaults", defaults)
+            }).catch(error => {
+                console.debug("failed to get endpoint defaults", error)
+                this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName, defaults: defaults})
+                console.log("defaults", defaults)
+            })
+
             
-            this.setState({endpoint: event.currentTarget.value, run: run, endpointName: endpointName, defaults: defaults})
         }
     }
 

@@ -21,6 +21,19 @@ interface EndpointState {
 
 export class EndpointService {
 
+    static getDefaults(nsid: string, endpoint: string): Promise<any> {
+        let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
+        return new Promise( (resolve, reject) => {
+            axios.get(root + "/deploy/ns/" + nsid + "/endpoint/" + endpoint + '/defaults')
+            .then(function (response) {
+                resolve(response.data.defaults)
+            })
+            .catch(function (error) {
+                // handle error
+                reject(error)
+            })
+        })
+    }
     static hasSecret(nsid:string, endpoint:string): Promise<any> {
         let root = process.env.REACT_APP_GOT_SERVER ? process.env.REACT_APP_GOT_SERVER : ""
         return new Promise( (resolve, reject) => {
