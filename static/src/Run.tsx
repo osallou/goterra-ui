@@ -366,6 +366,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             <label htmlFor={input}>{this.state.appInputs.template[input]}</label>
                             {this.state.defaults[input] === undefined &&  <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>}
                             {this.state.defaults[input] !== undefined && <select className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onSelectChange(input)}>
+                                <option value="">Select a value</option>
                                 {this.state.defaults[input].map((val:string) => (
                                     <option key={val}>{val}</option>
                                 ))}
@@ -380,6 +381,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                             <label htmlFor={input}>{this.state.appInputs.recipes[input]}</label>
                             {this.state.defaults[input] === undefined && <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>}
                             {this.state.defaults[input] !== undefined && <select className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onSelectChange(input)}>
+                                <option value="">Select a value</option>
                                 {this.state.defaults[input].map((val:string) => (
                                     <option key={val}>{val}</option>
                                 ))}
@@ -400,7 +402,15 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
                     {this.state.appInputs && this.state.endpoint !== "" && this.state.appInputs.endpoints[this.state.endpointName] !== undefined && Object.keys(this.state.appInputs.endpoints[this.state.endpointName]).map((input) => (
                         <div className="form-group row" key={input}>
                             <label htmlFor={input}>{this.state.appInputs.endpoints[this.state.endpointName][input]}</label>
-                            <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>
+                            {this.state.defaults[input] === undefined && <input className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onChange(input)}/>}
+                            {this.state.defaults[input] !== undefined && <select className="form-control" name={input} value={this.state.run.inputs[input] || ""} onChange={this.onSelectChange(input)}>
+                                <option value="">Select a value</option>
+                                {this.state.defaults[input].map((val:string) => (
+                                    <option key={val}>{val}</option>
+                                ))}
+                            </select>}
+
+
                         </div>
                     ))}
                     
