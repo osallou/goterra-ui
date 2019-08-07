@@ -226,9 +226,9 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
             }
 
             delete defaults["user_id"]
-            delete defaults["project_id"]
-            delete defaults["project_name"]
-            delete defaults["keypair"]
+            delete defaults["tenant_id"]
+            delete defaults["tenant_name"]
+            delete defaults["key_pair"]
 
             EndpointService.getDefaults(run.namespace, run.endpoint).then(endpointDefaults => {
                 Object.keys(endpointDefaults).forEach((key, _) => {
