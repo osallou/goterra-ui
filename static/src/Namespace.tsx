@@ -239,6 +239,14 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
         })
 
         NameSpaceService.getAcct(this.props.match.params.nsid).then(acct => {
+            let total = 0
+            for(let i=0;i<acct[0].Series.length;i++) {
+                let cost = acct[0].Series[i].values[0][3]
+                if(cost) {
+                    total += cost
+                }
+            }
+            acct[0].total = total
             ctx.setState({acct: acct})
         }).catch(error => {
             ctx.setState({msg: error.message})
@@ -247,6 +255,14 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
         var date = new Date()
         var firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         NameSpaceService.getAcctFrom(this.props.match.params.nsid, firstDay.getTime()/1000, false).then(acctMonth => {
+            let total = 0
+            for(let i=0;i<acctMonth[0].Series.length;i++) {
+                let cost = acctMonth[0].Series[i].values[0][4]
+                if(cost) {
+                    total += cost
+                }
+            }
+            acctMonth[0].total = total
             ctx.setState({acctMonth: acctMonth})
         }).catch(error => {
             ctx.setState({msg: error.message})
@@ -357,7 +373,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                     <div className="card">
                         <div className="card-header">Accounting <Link to={"/usage/ns/" + this.state.ns["_id"]}><button className="btn btn-secondary">Usage</button></Link></div>
                         <div className="card-body">
-                        <h5>Total</h5>
+                    <h5>Total  {this.state.acct.length > 0 && <span className="label label-info">cost: {this.state.acct[0].total}</span>}</h5>
                         { this.state.acct && this.state.acct.map((acct, index) => (
                                 <table className="table table-sm" key={index}>
                                     <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th></tr></thead>
@@ -374,7 +390,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                                 </table>
                         ))}
 
-                        <h5>This month</h5>
+                        <h5>This month {this.state.acctMonth.length > 0 && <span className="label label-info">cost: {this.state.acctMonth[0].total}</span>}</h5>
                         { this.state.acctMonth && this.state.acctMonth.map((acct, index) => (
                                 <table className="table table-sm" key={index}>
                                     <thead><tr><th>Resource</th><th>Kind</th><th>Quantity</th><th>Duration</th><th>Max</th></tr></thead>
@@ -391,7 +407,8 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                                         <td>{moment.duration(serie.values[0][2]).humanize()}</td>
                                         <td>{serie.values[0][3]}</td>
                                     </tr>
-                                ))}
+                                )
+                                )}
                                 </tbody>
                                 </table>
                         ))}
