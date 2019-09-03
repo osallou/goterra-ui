@@ -10,6 +10,14 @@
   revision = "ec5e00d3c878b2a97bbe0884ef45ffd1b4f669f5"
 
 [[projects]]
+  branch = "master"
+  digest = "1:01745416ed734d0dbd8f2a25344536e399ee60319654873da12b107e9e3cb309"
+  name = "github.com/golang/gddo"
+  packages = ["httputil/header"]
+  pruneopts = "UT"
+  revision = "287de01127eff824e82d565b37fdaa1118da5a4d"
+
+[[projects]]
   digest = "1:b117faf01abdbdadd7b8ceeae74cd1369c1b073fef41aee8b674c9d704a54c16"
   name = "github.com/gorilla/handlers"
   packages = ["."]
@@ -74,6 +82,14 @@
   version = "v0.8.3"
 
 [[projects]]
+  digest = "1:dd261cb8cf2e9718f74966f6d961ca6eacf4f1531de11f8d1bf220a644a7da72"
+  name = "github.com/lpar/gzipped"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "62ac6a5d6ab97423c49e4a34b2b3109a7bed69e8"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:5d231480e1c64a726869bc4142d270184c419749d34f167646baa21008eb0a79"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
@@ -132,6 +148,7 @@
   input-imports = [
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
+    "github.com/lpar/gzipped",
     "github.com/osallou/goterra-lib/lib/config",
     "github.com/rs/cors",
     "github.com/rs/zerolog",

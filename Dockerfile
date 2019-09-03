@@ -21,7 +21,7 @@ WORKDIR ./static
 RUN npm install
 ENV REACT_APP_GOT_BASENAME=/app
 RUN npm run build
-
+RUN npm run compress
 
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates

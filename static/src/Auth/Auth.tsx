@@ -178,8 +178,8 @@ export class Login extends React.Component<LoginProps,LoginState> {
                 <button onClick={this.onLogin} className="btn btn-primary">Log in</button>
                 </div>
                 <div className="row btn-group" style={{margin: "10px"}}>
-                { (this.state.googleOIDC || true) && <button  style={{margin: "10px"}} onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>}
-                { (this.state.AAIOIDC || true) && <button  style={{margin: "10px"}} onClick={this.oidcAAI} className="btn btn-primary">Log with Elixir AAI</button>}
+                { this.state.googleOIDC && <button  style={{margin: "10px"}} onClick={this.oidcGoogle} className="btn btn-primary">Log with google</button>}
+                { this.state.AAIOIDC && <button  style={{margin: "10px"}} onClick={this.oidcAAI} className="btn btn-primary">Log with Elixir AAI</button>}
                 </div>
             </div>)
     }

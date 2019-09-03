@@ -12,6 +12,7 @@ import (
 	terraConfig "github.com/osallou/goterra-lib/lib/config"
 	"github.com/rs/cors"
 
+	"github.com/lpar/gzipped"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -76,7 +77,7 @@ func main() {
 	r.HandleFunc("/app/config", ConfigHandler).Methods("GET")
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 
-	r.PathPrefix("/app/static").Handler(http.StripPrefix("/app/static", http.FileServer(http.Dir("./static/build/static"))))
+	r.PathPrefix("/app/static").Handler(http.StripPrefix("/app/static", gzipped.FileServer(http.Dir("./static/build/static"))))
 	r.PathPrefix("/app/manifest.json").HandlerFunc(IndexHandler("./static/build/manifest.json"))
 	r.PathPrefix("/app/favicon.ico").HandlerFunc(IndexHandler("./static/build/favicon.ico"))
 	r.PathPrefix("/app").HandlerFunc(IndexHandler("./static/build/index.html"))

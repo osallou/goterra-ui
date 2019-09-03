@@ -11,6 +11,7 @@ import {RunService} from './Runs'
 import {TemplateService} from './Template'
 
 import {RunActionDialog} from './RunActionDialog'
+import { runInContext } from "vm";
 
 interface MatchParams {
     nsid: string
@@ -220,8 +221,7 @@ export class RunApp extends React.Component<RouteComponentProps<MatchParams>, Ru
 
             if (ctx.state.appInputs.endpointdefaults !== undefined && ctx.state.appInputs.endpointdefaults !== null && ctx.state.appInputs.endpointdefaults[endpointName]) {
                 Object.keys(ctx.state.appInputs.endpointdefaults[endpointName]).forEach((key, _ ) => {
-                    defaults[key] = ctx.state.appInputs.endpointdefaults[endpointName][key]
-                })
+                    defaults[key] = ctx.state.appInputs.endpointdefaults[endpointName][key]                })
 
             }
 
