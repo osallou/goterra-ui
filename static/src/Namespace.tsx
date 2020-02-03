@@ -383,7 +383,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                                         <td>{serie.tags.resource}</td>
                                         <td>{serie.tags.kind}</td>
                                         <td>{serie.values[0][1]}</td>
-                                        <td>{moment.duration(serie.values[0][2]).humanize()}</td>
+                                        <td>{moment.duration(serie.values[0][2]/1000, 'seconds').humanize()}</td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -404,7 +404,7 @@ export class NameSpace extends React.Component<RouteComponentProps<MatchParams>,
                                         </td>
                                         <td>{serie.tags.kind}</td>
                                         <td>{serie.values[0][1]}</td>
-                                        <td>{moment.duration(serie.values[0][2]).humanize()}</td>
+                                        <td>{moment.duration(serie.values[0][2], 'seconds').humanize()}</td>
                                         <td>{serie.values[0][3]}</td>
                                     </tr>
                                 )
