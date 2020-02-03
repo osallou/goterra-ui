@@ -298,8 +298,8 @@ export class EditRecipe extends React.Component<RouteComponentProps<MatchParams>
                             <textarea rows={4} className="form-control" name="description" value={this.state.recipe.description} onChange={this.onChangeRecipe}/>
                         </div>
                         <div className="form-group row">
-                            <label htmlFor="name">Version</label>
-                            <input className="form-control" name="name" onChange={this.onChangeRecipe} value={this.state.recipe.version}/>
+                            <label htmlFor="version">Version</label>
+                            <input className="form-control" name="version" onChange={this.onChangeRecipe} value={this.state.recipe.version}/>
                         </div>
                         <div className="form-group row">
                             <label htmlFor="public">Public?</label>
